@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.0"
+agp = "8.5.1"
 daggerCompiler = "2.48.1"
 hiltAndroid = "2.48.1"
 hiltAndroidCompiler = "2.48.1"

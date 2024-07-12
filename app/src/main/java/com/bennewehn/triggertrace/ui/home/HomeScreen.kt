@@ -1,6 +1,5 @@
 package com.bennewehn.triggertrace.ui.home
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,88 +16,67 @@ import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
+import com.bennewehn.triggertrace.ui.Screen
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "dark mode", showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "light mode", showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-fun HomeScreen(){
-    TriggerTraceTheme {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    title = { Text("Home") }
+fun HomeScreen(
+    onNavigate: (Screen) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(30.dp),
+        verticalArrangement = Arrangement.spacedBy(15.dp),
+    ) {
+
+        HomeCard(
+            icon = { modifier ->
+                Icon(
+                    modifier = modifier
+                        .background(
+                            MaterialTheme.colorScheme.onPrimary,
+                            shape = CircleShape
+                        )
+                        .padding(8.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                    imageVector = Icons.Filled.Restaurant,
+                    contentDescription = "Food Icon",
                 )
             },
-        ){ innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(30.dp),
-                verticalArrangement = Arrangement.spacedBy(15.dp),
-            ) {
+            text = "Food",
+            onClick = { onNavigate(Screen.FoodScreen) }
+        )
+        HomeCard(
+            icon = { modifier ->
+                Icon(
+                    modifier = modifier,
+                    imageVector = Icons.Filled.SentimentDissatisfied,
+                    contentDescription = "Symptoms Icon",
+                )
+            },
+            text = "Symptoms",
+            onClick = { onNavigate(Screen.SymptomsScreen) }
+        )
 
-                HomeCard(
-                    icon = { modifier ->
-                        Icon(
-                            modifier = modifier
-                                .background(
-                                    MaterialTheme.colorScheme.onPrimary,
-                                    shape = CircleShape
-                                )
-                                .padding(8.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                            imageVector = Icons.Filled.Restaurant,
-                            contentDescription = "Food Icon",
-                        )
-                    },
-                    text = "Food",
+        HomeCard(
+            icon = { modifier ->
+                Icon(
+                    modifier = modifier,
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "Settings Icon",
                 )
-                HomeCard(
-                    icon = { modifier ->
-                        Icon(
-                            modifier = modifier,
-                            imageVector = Icons.Filled.SentimentDissatisfied,
-                            contentDescription = "Symptoms Icon",
-                        )
-                    },
-                    text = "Symptoms",
-                )
-
-                HomeCard(
-                    icon = { modifier ->
-                        Icon(
-                            modifier = modifier,
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Settings Icon",
-                        )
-                    },
-                    text = "Settings",
-                    onClick = {
-                        println("Setttings clicked!")
-                    }
-                )
-            }
-        }
+            },
+            text = "Settings",
+            onClick = { onNavigate(Screen.SettingsScreen) }
+        )
     }
 }
 
@@ -107,11 +85,11 @@ fun HomeCard(
     modifier: Modifier = Modifier,
     text: String,
     icon: @Composable (modifier: Modifier) -> Unit,
-    onClick: (() -> Unit)? = null){
+    onClick: (() -> Unit)? = null
+) {
     ElevatedCard(
         onClick = { onClick?.invoke() },
-        modifier = modifier.
-        fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary,
         ),

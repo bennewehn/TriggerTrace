@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.1"
 daggerCompiler = "2.48.1"
+datastorePreferences = "1.1.1"
 hiltAndroid = "2.48.1"
 hiltAndroidCompiler = "2.48.1"
 kotlin = "2.0.0"
@@ -22,6 +23,7 @@ kotlinxSerialization = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompilerVersion" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }

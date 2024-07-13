@@ -61,7 +61,12 @@ fun MainApp(
         )
         {
             composable<Screen.HomeScreen> {
-                HomeScreen(onNavigate = { navController.navigate(it) })
+                HomeScreen(
+                    onNavigate = {
+                        navController.navigate(it){
+                            launchSingleTop=true
+                        }
+                    })
             }
             composable<Screen.FoodScreen> {
                 FoodScreen()

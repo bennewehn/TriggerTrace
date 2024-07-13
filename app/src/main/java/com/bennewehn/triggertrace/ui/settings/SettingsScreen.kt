@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.DeviceThermostat
+import androidx.compose.material.icons.rounded.Grass
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,9 +24,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
@@ -41,7 +48,8 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Scaffold(
         modifier = modifier,
@@ -51,15 +59,27 @@ fun SettingsScreen(
             modifier = Modifier.padding(innerPadding)
         )
         {
-            SettingsClickableComp(icon = Icons.Rounded.Save, R.string.settings_database_path)
-            SettingsClickableComp(icon = Icons.Rounded.Add, R.string.settings_add_database)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            SettingsClickable(icon = Icons.Rounded.Save, R.string.settings_database_path)
+            SettingsClickable(icon = Icons.Rounded.Add, R.string.settings_add_database)
+            SettingsSwitch(
+                icon = Icons.Rounded.Grass,
+                name = R.string.settings_log_pollen,
+                state = uiState.logPollen,
+                onChanged = viewModel::updateLogPollen)
+            SettingsSwitch(
+                icon = Icons.Rounded.DeviceThermostat,
+                name = R.string.settings_log_temperature,
+                state = uiState.logTemperature,
+                onChanged = viewModel::updateLogTemperature)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsTopAppBar(onBack: () -> Unit){
+private fun SettingsTopAppBar(onBack: () -> Unit){
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.settings_screen_title)) },
         navigationIcon = {
@@ -71,7 +91,7 @@ fun SettingsTopAppBar(onBack: () -> Unit){
 }
 
 @Composable
-fun SettingsClickableComp(
+private fun SettingsClickable(
     icon: ImageVector,
     @StringRes name: Int,
     onClick: (() -> Unit)? = null
@@ -115,7 +135,54 @@ fun SettingsClickableComp(
                 )
             }
         }
+    }
+}
 
+
+@Composable
+private fun SettingsSwitch(
+    icon: ImageVector,
+    @StringRes name: Int,
+    state: Boolean,
+    onChanged: ((Boolean) -> Unit)?
+) {
+    Surface(
+        color = Color.Transparent,
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .clickable { onChanged?.invoke(!state) }
+                    .padding(horizontal = 16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colorScheme.surfaceTint
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = name),
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1.0f))
+                Switch(
+                    checked = state,
+                    onCheckedChange = onChanged
+                )
+            }
+        }
     }
 }
 
@@ -124,7 +191,6 @@ fun SettingsClickableComp(
 @Composable
 private fun SettingsScreenPreview() {
     TriggerTraceTheme {
-        SettingsScreen {
-        }
+        SettingsScreen(onBack = {})
     }
 }

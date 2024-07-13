@@ -1,5 +1,6 @@
 package com.bennewehn.triggertrace.ui.settings
 
+import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,13 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,16 +35,39 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bennewehn.triggertrace.R
+import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun SettingsScreen() {
-    Column()
-    {
-        SettingsClickableComp(icon = Icons.Rounded.Save, R.string.settings_database_path)
-        SettingsClickableComp(icon = Icons.Rounded.Add, R.string.settings_add_database)
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit
+) {
+    Scaffold(
+        modifier = modifier,
+        topBar = { SettingsTopAppBar(onBack) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        )
+        {
+            SettingsClickableComp(icon = Icons.Rounded.Save, R.string.settings_database_path)
+            SettingsClickableComp(icon = Icons.Rounded.Add, R.string.settings_add_database)
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsTopAppBar(onBack: () -> Unit){
+    TopAppBar(
+        title = { Text(text = stringResource(id = R.string.settings_screen_title)) },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back_button))
+            }
+        },
+    )
 }
 
 @Composable
@@ -87,5 +116,15 @@ fun SettingsClickableComp(
             }
         }
 
+    }
+}
+
+@Preview(name = "Settings Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Settings Screen Preview Light")
+@Composable
+private fun SettingsScreenPreview() {
+    TriggerTraceTheme {
+        SettingsScreen {
+        }
     }
 }

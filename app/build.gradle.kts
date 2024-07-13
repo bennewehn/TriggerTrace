@@ -76,13 +76,13 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.dagger.compiler)
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.material.icons.extended)
 
     implementation(libs.kotlinx.serialization.json)
-    implementation(kotlin("reflect"))
 
     implementation(libs.androidx.datastore.preferences)
 }

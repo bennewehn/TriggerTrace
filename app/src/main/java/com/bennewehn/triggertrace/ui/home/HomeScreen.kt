@@ -1,5 +1,6 @@
 package com.bennewehn.triggertrace.ui.home
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,72 +17,92 @@ import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.ui.Screen
-
+import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable
 fun HomeScreen(
     onNavigate: (Screen) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .padding(30.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp),
-    ) {
+    Scaffold(
+        topBar = { HomeTopAppBar() },
+        modifier = modifier
+    ) { innerPadding ->
 
-        HomeCard(
-            icon = { modifier ->
-                Icon(
-                    modifier = modifier
-                        .background(
-                            MaterialTheme.colorScheme.onPrimary,
-                            shape = CircleShape
-                        )
-                        .padding(8.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                    imageVector = Icons.Filled.Restaurant,
-                    contentDescription = "Food Icon",
-                )
-            },
-            text = "Food",
-            onClick = { onNavigate(Screen.FoodScreen) }
-        )
-        HomeCard(
-            icon = { modifier ->
-                Icon(
-                    modifier = modifier,
-                    imageVector = Icons.Filled.SentimentDissatisfied,
-                    contentDescription = "Symptoms Icon",
-                )
-            },
-            text = "Symptoms",
-            onClick = { onNavigate(Screen.SymptomsScreen) }
-        )
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(30.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
+        ) {
 
-        HomeCard(
-            icon = { modifier ->
-                Icon(
-                    modifier = modifier,
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "Settings Icon",
-                )
-            },
-            text = "Settings",
-            onClick = { onNavigate(Screen.SettingsScreen) }
-        )
+            HomeCard(
+                icon = { modifier ->
+                    Icon(
+                        modifier = modifier
+                            .background(
+                                MaterialTheme.colorScheme.onPrimary,
+                                shape = CircleShape
+                            )
+                            .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                        imageVector = Icons.Filled.Restaurant,
+                        contentDescription = "Food Icon",
+                    )
+                },
+                text = "Food",
+                onClick = { onNavigate(Screen.FoodScreen) }
+            )
+            HomeCard(
+                icon = { modifier ->
+                    Icon(
+                        modifier = modifier,
+                        imageVector = Icons.Filled.SentimentDissatisfied,
+                        contentDescription = "Symptoms Icon",
+                    )
+                },
+                text = "Symptoms",
+                onClick = { onNavigate(Screen.SymptomsScreen) }
+            )
+
+            HomeCard(
+                icon = { modifier ->
+                    Icon(
+                        modifier = modifier,
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Settings Icon",
+                    )
+                },
+                text = "Settings",
+                onClick = { onNavigate(Screen.SettingsScreen) }
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeCard(
+private fun HomeTopAppBar() {
+    TopAppBar(title = { Text(text = stringResource(id = R.string.home_screen_title)) })
+}
+
+@Composable
+private fun HomeCard(
     modifier: Modifier = Modifier,
     text: String,
     icon: @Composable (modifier: Modifier) -> Unit,
@@ -112,5 +133,14 @@ fun HomeCard(
                 modifier = Modifier.padding(start = 8.dp),
             )
         }
+    }
+}
+
+@Preview(name = "Home Screen Preview light")
+@Preview(name = "Home Screen Preview dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun HomeScreenPreview() {
+    TriggerTraceTheme {
+        HomeScreen({})
     }
 }

@@ -1,6 +1,6 @@
 package com.bennewehn.triggertrace.data
 
-class MealRepositoryImpl(private val mealDao: MealDao) : MealRepository {
+class DefaultMealRepository(private val mealDao: MealDao) : MealRepository {
     override suspend fun insertMeal(meal: Meal) {
         mealDao.insertMeal(meal)
     }

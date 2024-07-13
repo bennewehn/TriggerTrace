@@ -3,7 +3,7 @@ package com.bennewehn.triggertrace.di
 import android.app.Application
 import androidx.room.Room
 import com.bennewehn.triggertrace.data.MealRepository
-import com.bennewehn.triggertrace.data.MealRepositoryImpl
+import com.bennewehn.triggertrace.data.DefaultMealRepository
 import com.bennewehn.triggertrace.data.TriggerTraceDatabase
 import dagger.Module
 import dagger.Provides
@@ -28,7 +28,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMealRepository(db: TriggerTraceDatabase): MealRepository {
-        return MealRepositoryImpl(db.mealDao)
+        return DefaultMealRepository(db.mealDao)
     }
 
 }

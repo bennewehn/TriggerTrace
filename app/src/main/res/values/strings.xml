@@ -8,4 +8,5 @@
     <string name="settings_database_path">Database Path</string>
     <string name="settings_database">Database</string>
     <string name="settings_add_database">Add Database</string>
+    <string name="add_food_btn">Add Food</string>
 </resources>

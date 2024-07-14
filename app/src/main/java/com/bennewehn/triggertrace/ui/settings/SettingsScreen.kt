@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DeviceThermostat
 import androidx.compose.material.icons.rounded.Grass
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +29,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +49,7 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
+    onInfoClicked: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -73,6 +74,10 @@ fun SettingsScreen(
                 name = R.string.settings_log_temperature,
                 state = uiState.logTemperature,
                 onChanged = viewModel::updateLogTemperature)
+            SettingsClickable(
+                icon = Icons.Rounded.Info,
+                R.string.settings_info,
+                onClick = onInfoClicked)
         }
     }
 }
@@ -191,6 +196,6 @@ private fun SettingsSwitch(
 @Composable
 private fun SettingsScreenPreview() {
     TriggerTraceTheme {
-        SettingsScreen(onBack = {})
+        SettingsScreen(onBack = {}, onInfoClicked = {})
     }
 }

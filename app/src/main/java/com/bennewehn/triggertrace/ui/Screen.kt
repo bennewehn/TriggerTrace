@@ -12,4 +12,8 @@ sealed class Screen(){
     data object SymptomsScreen: Screen()
     @Serializable
     data object SettingsScreen: Screen()
+    @Serializable
+    data object AddFoodScreen: Screen()
+    @Serializable
+    data object InfoScreen: Screen()
 }

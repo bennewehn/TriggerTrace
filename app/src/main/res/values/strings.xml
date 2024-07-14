@@ -12,4 +12,6 @@
     <string name="settings_log_pollen">Log pollen</string>
     <string name="settings_log_temperature">Log temperature</string>
     <string name="search_meal_or_ingredient">Search meal or ingredient</string>
+    <string name="settings_info">Info</string>
+    <string name="info_screen_title">Info</string>
 </resources>

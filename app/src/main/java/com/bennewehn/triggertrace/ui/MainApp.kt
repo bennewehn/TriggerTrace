@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bennewehn.triggertrace.ui.food.FoodScreen
 import com.bennewehn.triggertrace.ui.home.HomeScreen
+import com.bennewehn.triggertrace.ui.settings.InfoScreen
 import com.bennewehn.triggertrace.ui.settings.SettingsScreen
 import com.bennewehn.triggertrace.ui.symptoms.SymptomsScreen
 
@@ -41,11 +42,19 @@ fun MainApp(
         }
         composable<Screen.SettingsScreen> {
             SettingsScreen(
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                onInfoClicked = { navController.navigate(Screen.InfoScreen){
+                    launchSingleTop = true
+                } }
             )
         }
         composable<Screen.SymptomsScreen> {
             SymptomsScreen(
+                onBack = { navController.navigateUp() },
+            )
+        }
+        composable<Screen.InfoScreen> {
+            InfoScreen(
                 onBack = { navController.navigateUp() },
             )
         }

@@ -16,15 +16,14 @@ import com.bennewehn.triggertrace.ui.symptoms.SymptomsScreen
 
 
 @Composable
-fun MainApp(
+fun AppNav(
     navController: NavHostController = rememberNavController()
 ) {
 
     NavHost(
         navController = navController,
         startDestination = Screen.HomeScreen,
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     )
     {
         composable<Screen.HomeScreen> {
@@ -38,17 +37,21 @@ fun MainApp(
         composable<Screen.FoodScreen> {
             FoodScreen(
                 onBack = { navController.navigateUp() },
-                onAddFood = { navController.navigate(Screen.AddFoodScreen){
-                    launchSingleTop = true
-                } }
+                onAddFood = {
+                    navController.navigate(Screen.AddFoodScreen) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable<Screen.SettingsScreen> {
             SettingsScreen(
                 onBack = { navController.navigateUp() },
-                onInfoClicked = { navController.navigate(Screen.InfoScreen){
-                    launchSingleTop = true
-                } }
+                onInfoClicked = {
+                    navController.navigate(Screen.InfoScreen) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable<Screen.SymptomsScreen> {

@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.bennewehn.triggertrace.ui.MainApp
+import com.bennewehn.triggertrace.ui.AppNav
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TriggerTraceTheme {
-                MainApp()
+                AppNav()
             }
         }
     }

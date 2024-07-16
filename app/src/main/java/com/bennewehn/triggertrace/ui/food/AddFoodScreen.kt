@@ -63,13 +63,46 @@ import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddFoodScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onAddFood: () -> Unit,
     viewModel: AddFoodViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    AddFoodScreenContent(
+        modifier = modifier,
+        onBack = onBack,
+        onAddFood = onAddFood,
+        updateSearchQuery = viewModel::updateSearchQuery,
+        snackbarMessageShown = viewModel::snackbarMessageShown,
+        updateName = viewModel::updateName,
+        updateSearchBarActive = viewModel::updateSearchBarActive,
+        selectFood = viewModel::selectFood,
+        deselectFood = viewModel::deselectFood,
+        addFood = viewModel::addFood,
+        uiState = uiState
+        )
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun AddFoodScreenContent(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    onAddFood: () -> Unit,
+    updateSearchQuery: (String) -> Unit,
+    snackbarMessageShown: () -> Unit,
+    updateName: (String) -> Unit,
+    updateSearchBarActive: (Boolean) -> Unit,
+    selectFood: (Food) -> Unit,
+    deselectFood: (Food) -> Unit,
+    addFood: () -> Unit,
+    uiState: AddFoodUIState
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -80,7 +113,6 @@ fun AddFoodScreen(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { innerPadding ->
-        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         val foodPagedData: LazyPagingItems<Food>? =
             uiState.foodPagedData?.collectAsLazyPagingItems()
         val focusRequester = remember { FocusRequester() }
@@ -96,13 +128,13 @@ fun AddFoodScreen(
 
         uiState.userMessage?.let { userMessage ->
             val snackbarText = stringResource(id = userMessage)
-            LaunchedEffect(snackbarHostState, viewModel, userMessage, snackbarText) {
+            LaunchedEffect(snackbarHostState, userMessage, snackbarText) {
                 snackbarHostState.showSnackbar(
                     message = snackbarText,
                     actionLabel = "OK",
                     duration = SnackbarDuration.Short
                 )
-                viewModel.snackbarMessageShown()
+                snackbarMessageShown()
             }
         }
 
@@ -117,7 +149,7 @@ fun AddFoodScreen(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     value = uiState.name,
-                    onValueChange = viewModel::updateName,
+                    onValueChange = updateName,
                     placeholder = {
                         Text(
                             text = stringResource(id = R.string.add_food_name_hint),
@@ -135,10 +167,10 @@ fun AddFoodScreen(
 
                 SearchBar(
                     query = uiState.searchQuery,
-                    onQueryChange = viewModel::updateSearchQuery,
+                    onQueryChange = updateSearchQuery,
                     onSearch = {},
                     active = uiState.searchBarActive,
-                    onActiveChange = viewModel::updateSearchBarActive,
+                    onActiveChange = updateSearchBarActive,
                     placeholder = { Text(text = stringResource(id = R.string.add_foods)) },
                     leadingIcon = { Icon(Icons.Filled.Add, null) },
                     windowInsets = WindowInsets(top = 0.dp),
@@ -150,9 +182,9 @@ fun AddFoodScreen(
                             Icon(
                                 modifier = Modifier.clickable {
                                     if (uiState.searchQuery.isNotEmpty()) {
-                                        viewModel.updateSearchQuery("")
+                                        updateSearchQuery("")
                                     } else {
-                                        viewModel.updateSearchBarActive(false)
+                                        updateSearchBarActive(false)
                                     }
                                 },
                                 imageVector = Icons.Default.Close,
@@ -169,7 +201,7 @@ fun AddFoodScreen(
                                 food?.let {
                                     Row(modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { viewModel.selectFood(food) }
+                                        .clickable { selectFood(food) }
                                         .padding(14.dp)
                                     ) {
                                         Text(text = food.name)
@@ -209,7 +241,7 @@ fun AddFoodScreen(
                     uiState.selectedFoods.forEach { item ->
                         InputChip(
                             selected = true,
-                            onClick = { viewModel.deselectFood(item) },
+                            onClick = { deselectFood(item) },
                             label = { Text(text = item.name) },
                             trailingIcon = {
                                 Icon(
@@ -226,7 +258,7 @@ fun AddFoodScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(30.dp),
-                onClick = viewModel::addFood,
+                onClick = addFood,
             ) {
                 Icon(imageVector = Icons.Filled.Check, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -236,6 +268,7 @@ fun AddFoodScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -255,6 +288,46 @@ private fun FoodTopAppBar(onBack: () -> Unit) {
 @Composable
 private fun FoodScreenPreview() {
     TriggerTraceTheme {
-        AddFoodScreen(onBack = {}, onAddFood = {})
+        AddFoodScreenContent(
+            onBack = {},
+            onAddFood = {},
+            updateSearchQuery = {},
+            updateName = {},
+            deselectFood = {},
+            selectFood = {},
+            updateSearchBarActive = {},
+            snackbarMessageShown = {},
+            addFood = {},
+            uiState = AddFoodUIState(
+                selectedFoods = setOf(
+                    Food(name = "Wheat"),
+                    Food(name = "Banana"),
+                    Food(name = "Apple"),
+                    Food(name = "Strawberry")),
+            ),
+        )
+    }
+}
+
+@Preview(name = "Add Food Screen Preview Search Bar Active Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Add Food Screen Preview Search Bar Active Light")
+@Composable
+private fun FoodScreenSearchBarActivePreview() {
+    TriggerTraceTheme {
+        AddFoodScreenContent(
+            onBack = {},
+            onAddFood = {},
+            updateSearchQuery = {},
+            updateName = {},
+            deselectFood = {},
+            selectFood = {},
+            updateSearchBarActive = {},
+            snackbarMessageShown = {},
+            addFood = {},
+            uiState = AddFoodUIState(
+                searchBarActive = true,
+                searchQuery = "test",
+            ),
+        )
     }
 }

@@ -23,7 +23,7 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 @Composable
 fun SymptomsScreen(
 modifier: Modifier = Modifier,
-onBack: () -> Unit,
+onBack: () -> Unit
 ) {
     Scaffold(
         modifier = modifier,

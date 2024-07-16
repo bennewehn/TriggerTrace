@@ -1,13 +1,16 @@
 package com.bennewehn.triggertrace.di
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
-import com.bennewehn.triggertrace.data.MealRepository
-import com.bennewehn.triggertrace.data.DefaultMealRepository
+import com.bennewehn.triggertrace.data.DefaultFoodRepository
+import com.bennewehn.triggertrace.data.FoodRepository
+import com.bennewehn.triggertrace.data.SettingsStore
 import com.bennewehn.triggertrace.data.TriggerTraceDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -21,14 +24,20 @@ object AppModule {
         return Room.databaseBuilder(
             app,
             TriggerTraceDatabase::class.java,
-            "triggertrace_db"
+             "trigger_trace_db"
         ).build()
     }
 
     @Provides
     @Singleton
-    fun provideMealRepository(db: TriggerTraceDatabase): MealRepository {
-        return DefaultMealRepository(db.mealDao)
+    fun provideFoodRepository(db: TriggerTraceDatabase): FoodRepository {
+        return DefaultFoodRepository(db.foodDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSettingsStore(@ApplicationContext appContext: Context): SettingsStore {
+        return SettingsStore(appContext)
     }
 
 }

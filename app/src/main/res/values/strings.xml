@@ -5,13 +5,18 @@
     <string name="settings_screen_title">Settings</string>
     <string name="symptom_screen_title">Symptoms</string>
     <string name="back_button">Back</string>
-    <string name="settings_database_path">Database path</string>
-    <string name="settings_database">Database</string>
-    <string name="settings_add_database">Add database</string>
+    <string name="settings_export_database">Export database</string>
     <string name="add_food_btn">Add food</string>
     <string name="settings_log_pollen">Log pollen</string>
     <string name="settings_log_temperature">Log temperature</string>
-    <string name="search_meal_or_ingredient">Search meal or ingredient</string>
+    <string name="search_food">Search food</string>
+    <string name="add_food_screen_title">Add Food</string>
+    <string name="add_food_name_hint">Name</string>
+    <string name="add_food_save">Save</string>
     <string name="settings_info">Info</string>
     <string name="info_screen_title">Info</string>
+    <string name="add_foods">Add foods</string>
+    <string name="empty_food_name_message">Name cannot be empty</string>
+    <string name="food_name_used_message">Name is already used</string>
+    <string name="error_message_adding_food">Error adding food</string>
 </resources>

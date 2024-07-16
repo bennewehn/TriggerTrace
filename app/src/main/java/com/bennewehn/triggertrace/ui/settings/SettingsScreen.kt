@@ -1,47 +1,30 @@
 package com.bennewehn.triggertrace.ui.settings
 
 import android.content.res.Configuration
-import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DeviceThermostat
 import androidx.compose.material.icons.rounded.Grass
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
+import com.bennewehn.triggertrace.ui.components.SettingsClickable
+import com.bennewehn.triggertrace.ui.components.SettingsSwitch
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 
@@ -52,6 +35,27 @@ fun SettingsScreen(
     onInfoClicked: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    SettingsScreenContent(
+        modifier = modifier,
+        onBack = onBack,
+        onInfoClicked = onInfoClicked,
+        uiState = uiState,
+        updateLogPollen = viewModel::updateLogPollen,
+        updateLogTemperature = viewModel::updateLogTemperature
+    )
+}
+
+@Composable
+private fun SettingsScreenContent(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    onInfoClicked: () -> Unit,
+    uiState: SettingsUIState,
+    updateLogPollen: (Boolean) -> Unit,
+    updateLogTemperature: (Boolean) -> Unit
+){
     Scaffold(
         modifier = modifier,
         topBar = { SettingsTopAppBar(onBack) }
@@ -60,23 +64,20 @@ fun SettingsScreen(
             modifier = Modifier.padding(innerPadding)
         )
         {
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-            SettingsClickable(icon = Icons.Rounded.Save, R.string.settings_database_path)
-            SettingsClickable(icon = Icons.Rounded.Add, R.string.settings_add_database)
+            SettingsClickable(icon = Icons.Rounded.IosShare, name = R.string.settings_export_database)
             SettingsSwitch(
                 icon = Icons.Rounded.Grass,
                 name = R.string.settings_log_pollen,
                 state = uiState.logPollen,
-                onChanged = viewModel::updateLogPollen)
+                onChanged = updateLogPollen)
             SettingsSwitch(
                 icon = Icons.Rounded.DeviceThermostat,
                 name = R.string.settings_log_temperature,
                 state = uiState.logTemperature,
-                onChanged = viewModel::updateLogTemperature)
+                onChanged = updateLogTemperature)
             SettingsClickable(
                 icon = Icons.Rounded.Info,
-                R.string.settings_info,
+                name = R.string.settings_info,
                 onClick = onInfoClicked)
         }
     }
@@ -95,107 +96,17 @@ private fun SettingsTopAppBar(onBack: () -> Unit){
     )
 }
 
-@Composable
-private fun SettingsClickable(
-    icon: ImageVector,
-    @StringRes name: Int,
-    onClick: (() -> Unit)? = null
-) {
-    Surface(
-        color = Color.Transparent,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .clickable { onClick?.invoke() }
-                    .padding(horizontal = 16.dp)
-                ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp),
-                        tint = MaterialTheme.colorScheme.surfaceTint
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = name),
-                        modifier = Modifier
-                            .padding(16.dp),
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1.0f))
-                Icon(
-                    Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                    contentDescription = null
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-private fun SettingsSwitch(
-    icon: ImageVector,
-    @StringRes name: Int,
-    state: Boolean,
-    onChanged: ((Boolean) -> Unit)?
-) {
-    Surface(
-        color = Color.Transparent,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .clickable { onChanged?.invoke(!state) }
-                    .padding(horizontal = 16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colorScheme.surfaceTint
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(id = name),
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1.0f))
-                Switch(
-                    checked = state,
-                    onCheckedChange = onChanged
-                )
-            }
-        }
-    }
-}
-
 @Preview(name = "Settings Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(name = "Settings Screen Preview Light")
 @Composable
 private fun SettingsScreenPreview() {
     TriggerTraceTheme {
-        SettingsScreen(onBack = {}, onInfoClicked = {})
+        SettingsScreenContent(
+            onBack = {},
+            onInfoClicked = {},
+            uiState = SettingsUIState(),
+            updateLogPollen = {},
+            updateLogTemperature = {}
+        )
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,7 +53,8 @@ fun FoodScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 25.dp),
+                .padding(horizontal = 25.dp)
+                .clip(RoundedCornerShape(10.dp)),
         ) {
             val searchQuery by viewModel.searchQuery.collectAsState()
             val isSearchBarActive by viewModel.isSearchBarActive.collectAsState()
@@ -61,15 +64,19 @@ fun FoodScreen(
                 onSearch = {},
                 active = isSearchBarActive,
                 onActiveChange = viewModel::updateIsSearchBarActive,
-                placeholder = { Text(text = stringResource(id = R.string.search_meal_or_ingredient)) },
+                placeholder = { Text(text = stringResource(id = R.string.search_food)) },
                 windowInsets = WindowInsets(top = 0.dp),
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
                 trailingIcon = {
                     if (isSearchBarActive) {
                         Icon(
                             modifier = Modifier.clickable {
-                                viewModel.updateIsSearchBarActive(false)
-                                viewModel.updateSearchQuery("")
+                                if(searchQuery.isNotEmpty()){
+                                    viewModel.updateSearchQuery("")
+                                }
+                                else{
+                                    viewModel.updateIsSearchBarActive(false)
+                                }
                             },
                             imageVector = Icons.Default.Close,
                             contentDescription = null

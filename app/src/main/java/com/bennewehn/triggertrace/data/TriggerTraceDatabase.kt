@@ -4,8 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 
-@Database(entities = [Meal::class], version = 1, exportSchema = false)
-
+@Database(entities = [Food::class, FoodComposition::class], version = 1)
 abstract class TriggerTraceDatabase: RoomDatabase() {
-    abstract val mealDao: MealDao
+    abstract val foodDao: FoodDao
 }

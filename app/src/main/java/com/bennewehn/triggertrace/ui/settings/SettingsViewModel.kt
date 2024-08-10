@@ -1,9 +1,13 @@
 package com.bennewehn.triggertrace.ui.settings
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bennewehn.triggertrace.data.SettingsStore
+import com.bennewehn.triggertrace.data.TriggerTraceDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +24,9 @@ data class SettingsUIState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsStore: SettingsStore
+    private val settingsStore: SettingsStore,
+    private val db: TriggerTraceDatabase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUIState())
@@ -56,6 +62,12 @@ class SettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             settingsStore.setLogTemperature(logTemp)
+        }
+    }
+
+    fun exportDatabase(uri: Uri){
+        viewModelScope.launch {
+            db.backupDatabase(context, uri)
         }
     }
 

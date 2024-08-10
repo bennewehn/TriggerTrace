@@ -1,6 +1,9 @@
 package com.bennewehn.triggertrace.ui.settings
 
 import android.content.res.Configuration
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -27,7 +30,6 @@ import com.bennewehn.triggertrace.ui.components.SettingsClickable
 import com.bennewehn.triggertrace.ui.components.SettingsSwitch
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
-
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -37,13 +39,21 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val createFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/x-sqlite3"),
+        onResult = { uri: Uri? ->
+            uri?.let { viewModel.exportDatabase(uri) }
+        }
+    )
+
     SettingsScreenContent(
         modifier = modifier,
         onBack = onBack,
         onInfoClicked = onInfoClicked,
         uiState = uiState,
         updateLogPollen = viewModel::updateLogPollen,
-        updateLogTemperature = viewModel::updateLogTemperature
+        updateLogTemperature = viewModel::updateLogTemperature,
+        exportDb = { createFileLauncher.launch("database.db") }
     )
 }
 
@@ -54,7 +64,8 @@ private fun SettingsScreenContent(
     onInfoClicked: () -> Unit,
     uiState: SettingsUIState,
     updateLogPollen: (Boolean) -> Unit,
-    updateLogTemperature: (Boolean) -> Unit
+    updateLogTemperature: (Boolean) -> Unit,
+    exportDb: () -> Unit
 ){
     Scaffold(
         modifier = modifier,
@@ -64,7 +75,11 @@ private fun SettingsScreenContent(
             modifier = Modifier.padding(innerPadding)
         )
         {
-            SettingsClickable(icon = Icons.Rounded.IosShare, name = R.string.settings_export_database)
+
+            SettingsClickable(
+                icon = Icons.Rounded.IosShare,
+                name = R.string.settings_export_database,
+                onClick = exportDb)
             SettingsSwitch(
                 icon = Icons.Rounded.Grass,
                 name = R.string.settings_log_pollen,
@@ -106,7 +121,8 @@ private fun SettingsScreenPreview() {
             onInfoClicked = {},
             uiState = SettingsUIState(),
             updateLogPollen = {},
-            updateLogTemperature = {}
+            updateLogTemperature = {},
+            exportDb = {}
         )
     }
 }

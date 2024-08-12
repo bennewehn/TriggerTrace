@@ -19,4 +19,5 @@
     <string name="empty_food_name_message">Name cannot be empty</string>
     <string name="food_name_used_message">Name is already used</string>
     <string name="error_message_adding_food">Error adding food</string>
+    <string name="export_as_csv">Export as CSV</string>
 </resources>

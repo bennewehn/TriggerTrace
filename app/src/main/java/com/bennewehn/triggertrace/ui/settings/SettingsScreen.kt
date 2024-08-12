@@ -21,7 +21,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -80,6 +82,10 @@ private fun SettingsScreenContent(
                 icon = Icons.Rounded.IosShare,
                 name = R.string.settings_export_database,
                 onClick = exportDb)
+            SettingsClickable(
+                icon = ImageVector.vectorResource(id = R.drawable.csv_icon),
+                name = R.string.export_as_csv,
+                )
             SettingsSwitch(
                 icon = Icons.Rounded.Grass,
                 name = R.string.settings_log_pollen,

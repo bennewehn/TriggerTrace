@@ -12,7 +12,7 @@ import androidx.room.Relation
     tableName = "food",
     indices = [Index(value = ["name"], unique = true)])
 data class Food(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name="name") val name: String,
 )
 

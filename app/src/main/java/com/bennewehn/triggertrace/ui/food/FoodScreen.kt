@@ -1,28 +1,23 @@
 package com.bennewehn.triggertrace.ui.food
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -30,15 +25,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bennewehn.triggertrace.R
+import com.bennewehn.triggertrace.ui.components.FoodSearchBar
+import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onAddFood: () -> Unit,
     viewModel: FoodViewModel = hiltViewModel(),
+) {
+    FoodScreenContent(
+        modifier = modifier,
+        onBack = onBack,
+        onAddFood = onAddFood,
+        foodSearchBarViewModel = viewModel.foodSearchBarViewModel
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FoodScreenContent(
+    modifier: Modifier,
+    onBack: () -> Unit,
+    onAddFood: () -> Unit,
+    foodSearchBarViewModel: FoodSearchBarViewModel?
 ) {
     Scaffold(
         modifier = modifier,
@@ -55,36 +67,14 @@ fun FoodScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 25.dp)
                 .clip(RoundedCornerShape(10.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val searchQuery by viewModel.searchQuery.collectAsState()
-            val isSearchBarActive by viewModel.isSearchBarActive.collectAsState()
-            SearchBar(
-                query = searchQuery,
-                onQueryChange = viewModel::updateSearchQuery,
-                onSearch = {},
-                active = isSearchBarActive,
-                onActiveChange = viewModel::updateIsSearchBarActive,
-                placeholder = { Text(text = stringResource(id = R.string.search_food)) },
-                windowInsets = WindowInsets(top = 0.dp),
-                leadingIcon = { Icon(Icons.Filled.Search, null) },
-                trailingIcon = {
-                    if (isSearchBarActive) {
-                        Icon(
-                            modifier = Modifier.clickable {
-                                if(searchQuery.isNotEmpty()){
-                                    viewModel.updateSearchQuery("")
-                                }
-                                else{
-                                    viewModel.updateIsSearchBarActive(false)
-                                }
-                            },
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null
-                        )
-                    }
-                }
-            ) {
-            }
+            FoodSearchBar(
+                leadingIcon = Icons.Default.Search,
+                placeHolder = stringResource(id = R.string.search_food),
+                onFoodSelected = {},
+                viewModel = foodSearchBarViewModel
+            )
         }
     }
 }
@@ -107,6 +97,11 @@ private fun FoodTopAppBar(onBack: () -> Unit) {
 @Composable
 private fun FoodScreenPreview() {
     TriggerTraceTheme {
-        FoodScreen(onBack = {}, onAddFood = {})
+        FoodScreenContent(
+            modifier = Modifier,
+            onBack = {},
+            onAddFood = {},
+            foodSearchBarViewModel = null
+        )
     }
 }

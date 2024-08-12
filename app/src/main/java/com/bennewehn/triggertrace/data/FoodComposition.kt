@@ -2,6 +2,7 @@ package com.bennewehn.triggertrace.data
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 
 @Entity(
     tableName = "food_composition",
@@ -9,9 +10,10 @@ import androidx.room.ForeignKey
     foreignKeys = [
         ForeignKey(entity = Food::class, parentColumns = ["id"], childColumns = ["foodId"], onDelete = ForeignKey.RESTRICT),
         ForeignKey(entity = Food::class, parentColumns = ["id"], childColumns = ["composedFoodId"], onDelete = ForeignKey.RESTRICT)
-    ]
+    ],
+    indices = [Index(value = ["foodId"]), Index(value = ["composedFoodId"])]
 )
 data class FoodComposition(
-    val foodId: Int,
-    val composedFoodId: Int
+    val foodId: Long,
+    val composedFoodId: Long
 )

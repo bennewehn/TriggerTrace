@@ -62,7 +62,7 @@ fun AppNav(
         composable<Screen.AddFoodScreen> {
             AddFoodScreen(
                 onBack = { navController.navigateUp() },
-                onAddFood = {}
+                onFoodAdded = { navController.navigateUp() }
             )
         }
         composable<Screen.InfoScreen> {

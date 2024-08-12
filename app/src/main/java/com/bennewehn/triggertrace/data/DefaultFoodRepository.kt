@@ -6,16 +6,12 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 
 class DefaultFoodRepository(private val foodDao: FoodDao) : FoodRepository {
-    override suspend fun insertFood(food: Food) {
-        foodDao.insertFood(food)
+    override suspend fun insertFood(food: Food): Long{
+        return foodDao.insertFood(food)
     }
 
     override suspend fun deleteFood(food: Food) {
         foodDao.deleteFood(food)
-    }
-
-    override suspend fun insertFoodWithComposedFoods(foodComposition: FoodComposition) {
-        foodDao.insertFoodWithComposedFoods(foodComposition)
     }
 
     override fun searchItems(query: String): Flow<PagingData<Food>> {
@@ -23,6 +19,14 @@ class DefaultFoodRepository(private val foodDao: FoodDao) : FoodRepository {
             config = PagingConfig(pageSize = 20),
             pagingSourceFactory = {foodDao.searchItems(query)}
         ).flow
+    }
+
+    override suspend fun insertFoodComposition(foodComposition: FoodComposition) {
+        foodDao.insertFoodComposition(foodComposition)
+    }
+
+    override suspend fun insertFoodAndCompositions(food: Food, compositions: Set<Food>) {
+        foodDao.insertFoodAndCompositions(food, compositions)
     }
 
 }

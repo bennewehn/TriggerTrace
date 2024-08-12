@@ -1,26 +1,21 @@
 package com.bennewehn.triggertrace.ui.food
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -55,11 +49,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.ui.components.FoodSearchBar
+import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 
@@ -67,26 +60,29 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 fun AddFoodScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    onAddFood: () -> Unit,
+    onFoodAdded: () -> Unit,
     viewModel: AddFoodViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.foodAddedSuccessfully) {
+        if (uiState.foodAddedSuccessfully) {
+            onFoodAdded()
+        }
+    }
+
     AddFoodScreenContent(
         modifier = modifier,
         onBack = onBack,
-        onAddFood = onAddFood,
-        updateSearchQuery = viewModel::updateSearchQuery,
         snackbarMessageShown = viewModel::snackbarMessageShown,
         updateName = viewModel::updateName,
-        updateSearchBarActive = viewModel::updateSearchBarActive,
         selectFood = viewModel::selectFood,
         deselectFood = viewModel::deselectFood,
-        addFood = viewModel::addFood,
-        uiState = uiState
-        )
+        onAddFood = viewModel::addFood,
+        uiState = uiState,
+        foodSearchBarViewModel = viewModel.foodSearchBarViewModel
+    )
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -95,14 +91,12 @@ fun AddFoodScreenContent(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onAddFood: () -> Unit,
-    updateSearchQuery: (String) -> Unit,
     snackbarMessageShown: () -> Unit,
     updateName: (String) -> Unit,
-    updateSearchBarActive: (Boolean) -> Unit,
     selectFood: (Food) -> Unit,
     deselectFood: (Food) -> Unit,
-    addFood: () -> Unit,
-    uiState: AddFoodUIState
+    uiState: AddFoodUIState,
+    foodSearchBarViewModel: FoodSearchBarViewModel? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -113,11 +107,9 @@ fun AddFoodScreenContent(
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { innerPadding ->
-        val foodPagedData: LazyPagingItems<Food>? =
-            uiState.foodPagedData?.collectAsLazyPagingItems()
+
         val focusRequester = remember { FocusRequester() }
         var hasFocused by rememberSaveable { mutableStateOf(false) }
-
 
         LaunchedEffect(hasFocused) {
             if (!hasFocused) {
@@ -165,74 +157,16 @@ fun AddFoodScreenContent(
                     ),
                 )
 
-                SearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = updateSearchQuery,
-                    onSearch = {},
-                    active = uiState.searchBarActive,
-                    onActiveChange = updateSearchBarActive,
-                    placeholder = { Text(text = stringResource(id = R.string.add_foods)) },
-                    leadingIcon = { Icon(Icons.Filled.Add, null) },
-                    windowInsets = WindowInsets(top = 0.dp),
+                FoodSearchBar(
+                    leadingIcon = Icons.Filled.Add,
+                    placeHolder = stringResource(id = R.string.add_foods),
+                    onFoodSelected = selectFood,
                     colors = SearchBarDefaults.colors(
                         containerColor = Color.Transparent
                     ),
-                    trailingIcon = {
-                        if (uiState.searchBarActive) {
-                            Icon(
-                                modifier = Modifier.clickable {
-                                    if (uiState.searchQuery.isNotEmpty()) {
-                                        updateSearchQuery("")
-                                    } else {
-                                        updateSearchBarActive(false)
-                                    }
-                                },
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null
-                            )
-                        }
-                    }
+                    viewModel = foodSearchBarViewModel,
+                )
 
-                ) {
-                    foodPagedData?.let { lazyPagingItems ->
-                        LazyColumn {
-                            items(lazyPagingItems.itemCount) { index ->
-                                val food = lazyPagingItems[index]
-                                food?.let {
-                                    Row(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { selectFood(food) }
-                                        .padding(14.dp)
-                                    ) {
-                                        Text(text = food.name)
-                                    }
-                                }
-                            }
-
-                            when (lazyPagingItems.loadState.refresh) {
-                                is LoadState.Loading -> {
-                                    item {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(20.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            CircularProgressIndicator()
-                                        }
-                                    }
-                                }
-
-                                is LoadState.Error -> {
-                                    val e = lazyPagingItems.loadState.refresh as LoadState.Error
-                                    item { Text(text = "Error: ${e.error.localizedMessage}") }
-                                }
-
-                                is LoadState.NotLoading -> {}
-                            }
-                        }
-                    }
-                }
 
                 FlowRow(
                     modifier = Modifier.padding(horizontal = 20.dp),
@@ -258,7 +192,7 @@ fun AddFoodScreenContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(30.dp),
-                onClick = addFood,
+                onClick = onAddFood,
             ) {
                 Icon(imageVector = Icons.Filled.Check, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -291,25 +225,26 @@ private fun FoodScreenPreview() {
         AddFoodScreenContent(
             onBack = {},
             onAddFood = {},
-            updateSearchQuery = {},
             updateName = {},
             deselectFood = {},
             selectFood = {},
-            updateSearchBarActive = {},
             snackbarMessageShown = {},
-            addFood = {},
             uiState = AddFoodUIState(
                 selectedFoods = setOf(
                     Food(name = "Wheat"),
                     Food(name = "Banana"),
                     Food(name = "Apple"),
-                    Food(name = "Strawberry")),
+                    Food(name = "Strawberry")
+                ),
             ),
         )
     }
 }
 
-@Preview(name = "Add Food Screen Preview Search Bar Active Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    name = "Add Food Screen Preview Search Bar Active Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Preview(name = "Add Food Screen Preview Search Bar Active Light")
 @Composable
 private fun FoodScreenSearchBarActivePreview() {
@@ -317,16 +252,11 @@ private fun FoodScreenSearchBarActivePreview() {
         AddFoodScreenContent(
             onBack = {},
             onAddFood = {},
-            updateSearchQuery = {},
             updateName = {},
             deselectFood = {},
             selectFood = {},
-            updateSearchBarActive = {},
             snackbarMessageShown = {},
-            addFood = {},
             uiState = AddFoodUIState(
-                searchBarActive = true,
-                searchQuery = "test",
             ),
         )
     }

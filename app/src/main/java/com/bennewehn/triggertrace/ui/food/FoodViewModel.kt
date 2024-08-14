@@ -1,11 +1,14 @@
 package com.bennewehn.triggertrace.ui.food
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,11 +25,13 @@ data class SelectableFood(
 
 data class FoodScreenUIState(
     val selectedFoods: List<SelectableFood> = emptyList(),
+    val messageQueue: List<Pair<String, Food>> = emptyList()
 )
 
 @HiltViewModel
 class FoodViewModel @Inject constructor(
-    foodRepository: FoodRepository
+    foodRepository: FoodRepository,
+    @ApplicationContext val appContext: Context
 ) : ViewModel() {
 
     val foodSearchBarViewModel = FoodSearchBarViewModel(foodRepository)
@@ -37,10 +42,7 @@ class FoodViewModel @Inject constructor(
     // Job reference for background work
     private var debounceJob: MutableMap<SelectableFood, Job> = mutableMapOf()
 
-
-    fun onFoodSelected(food: Food) {
-        foodSearchBarViewModel.updateSearchBarActive(false)
-
+    private fun addFood(food: Food){
         val containsFood = _uiState.value.selectedFoods.any { it.food == food }
         if (!containsFood) {
             _uiState.update {
@@ -49,6 +51,11 @@ class FoodViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun onFoodSelected(food: Food) {
+        foodSearchBarViewModel.updateSearchBarActive(false)
+        addFood(food)
     }
 
     fun onFoodItemSelectionChanged(selected: Boolean, selectableFood: SelectableFood) {
@@ -75,7 +82,38 @@ class FoodViewModel @Inject constructor(
                     item.food != selectableFood.food || item.selected
                 }
             )
+
+            // item deleted, show message
+            if(!selected){
+                enqueueMessage(
+                    "${selectableFood.food.name} ${appContext.getString(R.string.deleted)}.",
+                    selectableFood.food
+                )
+            }
         }
     }
 
+    private fun enqueueMessage(message: String, food: Food) {
+        // only trigger state change if not items in queue
+        _uiState.update {
+            it.copy(messageQueue = it.messageQueue + Pair(message, food))
+        }
+    }
+
+    fun showNextMessage() {
+        viewModelScope.launch {
+            if (_uiState.value.messageQueue.isNotEmpty()) {
+                // Remove the first message after it's shown
+                _uiState.update {
+                    it.copy(
+                        messageQueue = it.messageQueue.drop(1)
+                    )
+                }
+            }
+        }
+    }
+
+    fun undoDeletion(food: Food){
+        addFood(food)
+    }
 }

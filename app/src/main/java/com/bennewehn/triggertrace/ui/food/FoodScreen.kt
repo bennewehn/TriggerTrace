@@ -24,10 +24,16 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,7 +65,9 @@ fun FoodScreen(
         foodSearchBarViewModel = viewModel.foodSearchBarViewModel,
         uiState = uiState,
         onFoodSelected = viewModel::onFoodSelected,
-        onFoodItemSelectionChanged = viewModel::onFoodItemSelectionChanged
+        onFoodItemSelectionChanged = viewModel::onFoodItemSelectionChanged,
+        showNextMessage = viewModel::showNextMessage,
+        undoDeletion = viewModel::undoDeletion
     )
 }
 
@@ -72,8 +80,16 @@ private fun FoodScreenContent(
     onFoodSelected: (Food) -> Unit,
     onFoodItemSelectionChanged: (Boolean, SelectableFood) -> Unit,
     foodSearchBarViewModel: FoodSearchBarViewModel?,
+    showNextMessage: () -> Unit,
+    undoDeletion: (Food) -> Unit,
     uiState: FoodScreenUIState
 ) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val undoLabel = stringResource(id = R.string.UNDO)
+
+
     Scaffold(
         modifier = modifier,
         topBar = { FoodTopAppBar(onBack) },
@@ -81,8 +97,29 @@ private fun FoodScreenContent(
             FloatingActionButton(onClick = onAddFood) {
                 Icon(Icons.Filled.Add, stringResource(id = R.string.add_food_btn))
             }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { innerPadding ->
+
+        LaunchedEffect(uiState.messageQueue.firstOrNull()) {
+            if (uiState.messageQueue.isNotEmpty()) {
+
+                val result = snackbarHostState.showSnackbar(
+                    message = uiState.messageQueue.first().first,
+                    duration = SnackbarDuration.Short,
+                    actionLabel = undoLabel,
+                    withDismissAction = true
+                )
+
+                if(result == SnackbarResult.ActionPerformed){
+                    undoDeletion(uiState.messageQueue.first().second)
+                }
+                showNextMessage()
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,7 +148,12 @@ private fun FoodScreenContent(
                         ) {
                             Checkbox(
                                 checked = selectableFood.selected,
-                                onCheckedChange = { checked -> onFoodItemSelectionChanged(checked, selectableFood) }
+                                onCheckedChange = { checked ->
+                                    onFoodItemSelectionChanged(
+                                        checked,
+                                        selectableFood
+                                    )
+                                }
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(text = selectableFood.food.name)
@@ -154,7 +196,9 @@ private fun FoodScreenPreview() {
                 )
             ),
             onFoodSelected = {},
-            onFoodItemSelectionChanged = {_, _ ->}
+            onFoodItemSelectionChanged = { _, _ -> },
+            showNextMessage = {},
+            undoDeletion = {}
         )
     }
 }

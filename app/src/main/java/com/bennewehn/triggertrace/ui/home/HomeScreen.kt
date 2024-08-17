@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.Settings
@@ -78,6 +79,18 @@ fun HomeScreen(
                 },
                 text = "Symptoms",
                 onClick = { onNavigate(Screen.SymptomsScreen) }
+            )
+
+            HomeCard(
+                icon = { modifier ->
+                    Icon(
+                        modifier = modifier,
+                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                        contentDescription = "Symptoms Icon",
+                    )
+                },
+                text = "Diary",
+                onClick = { onNavigate(Screen.DiaryScreen) }
             )
 
             HomeCard(

@@ -23,4 +23,6 @@
     <string name="deleted">deleted</string>
     <string name="UNDO">UNDO</string>
     <string name="nothing_selected">Nothing selected</string>
+    <string name="add_symptom_title">Add symptom</string>
+    <string name="diary_screen_title">Diary</string>
 </resources>

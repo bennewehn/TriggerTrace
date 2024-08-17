@@ -4,13 +4,16 @@ import android.content.Context
 import android.net.Uri
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SimpleSQLiteQuery
 import java.io.IOException
 
 
-@Database(entities = [Food::class, FoodComposition::class], version = 1)
-abstract class TriggerTraceDatabase(): RoomDatabase() {
+@Database(entities = [Food::class, FoodComposition::class, FoodEntry::class], version = 1)
+@TypeConverters(RoomTypeConverters::class)
+abstract class TriggerTraceDatabase: RoomDatabase() {
     abstract val foodDao: FoodDao
+    abstract val foodEntryDao: FoodEntryDao
     abstract val triggerTraceDatabaseDao: TriggerTraceDatabaseDao
 
     /**

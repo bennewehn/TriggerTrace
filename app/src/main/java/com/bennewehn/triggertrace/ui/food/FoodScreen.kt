@@ -72,7 +72,8 @@ fun FoodScreen(
         onFoodSelected = viewModel::onFoodSelected,
         onFoodDeleted = viewModel::onFoodDeleted,
         showNextMessage = viewModel::showNextMessage,
-        undoDeletion = viewModel::undoDeletion
+        undoDeletion = viewModel::undoDeletion,
+        onAddSelectedFoodClicked = viewModel::onAddSelectedFood
     )
 }
 
@@ -82,6 +83,7 @@ private fun FoodScreenContent(
     modifier: Modifier,
     onBack: () -> Unit,
     onAddFood: () -> Unit,
+    onAddSelectedFoodClicked: () -> Unit,
     onFoodSelected: (Food) -> Unit,
     onFoodDeleted: (Food) -> Unit,
     foodSearchBarViewModel: FoodSearchBarViewModel?,
@@ -187,7 +189,7 @@ private fun FoodScreenContent(
             Button(
                 modifier = Modifier.padding(top = 15.dp),
                 enabled = uiState.selectedFoods.isNotEmpty(),
-                onClick = {  },
+                onClick = onAddSelectedFoodClicked,
                 ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -237,7 +239,8 @@ private fun FoodScreenItemsSelectedPreview() {
             onFoodSelected = {},
             showNextMessage = {},
             undoDeletion = {},
-            onFoodDeleted = {}
+            onFoodDeleted = {},
+            onAddSelectedFoodClicked = {}
         )
     }
 }
@@ -256,7 +259,8 @@ private fun FoodScreenNoItemsSelectedPreview() {
             onFoodSelected = {},
             showNextMessage = {},
             undoDeletion = {},
-            onFoodDeleted = {}
+            onFoodDeleted = {},
+            onAddSelectedFoodClicked = {}
         )
     }
 }

@@ -1,10 +1,13 @@
 package com.bennewehn.triggertrace.ui.food
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.data.FoodEntry
+import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +27,7 @@ data class FoodScreenUIState(
 @HiltViewModel
 class FoodViewModel @Inject constructor(
     foodRepository: FoodRepository,
+    private val foodEntryRepository: FoodEntryRepository,
     @ApplicationContext val appContext: Context
 ) : ViewModel() {
 
@@ -31,6 +35,19 @@ class FoodViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(FoodScreenUIState())
     val uiState: StateFlow<FoodScreenUIState> = _uiState.asStateFlow()
+
+    fun onAddSelectedFood(){
+        // add selected food items to db
+        viewModelScope.launch {
+            val entries = _uiState.value.selectedFoods.map { FoodEntry(foodId = it.id) }
+            try{
+                foodEntryRepository.insertFoodEntries(entries)
+            }
+            catch (e: Exception){
+                Toast.makeText(appContext, e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     private fun addFood(food: Food) {
         val containsFood = _uiState.value.selectedFoods.any { it == food }

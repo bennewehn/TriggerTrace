@@ -3,7 +3,9 @@ package com.bennewehn.triggertrace.di
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.bennewehn.triggertrace.data.DefaultFoodEntryRepository
 import com.bennewehn.triggertrace.data.DefaultFoodRepository
+import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.data.SettingsStore
 import com.bennewehn.triggertrace.data.TriggerTraceDatabase
@@ -32,6 +34,12 @@ object AppModule {
     @Singleton
     fun provideFoodRepository(db: TriggerTraceDatabase): FoodRepository {
         return DefaultFoodRepository(db.foodDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFoodEntryRepository(db: TriggerTraceDatabase): FoodEntryRepository{
+        return DefaultFoodEntryRepository(db.foodEntryDao)
     }
 
     @Provides

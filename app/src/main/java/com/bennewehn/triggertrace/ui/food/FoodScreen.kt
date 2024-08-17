@@ -2,6 +2,8 @@ package com.bennewehn.triggertrace.ui.food
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.IndeterminateCheckBox
+import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -65,7 +70,7 @@ fun FoodScreen(
         foodSearchBarViewModel = viewModel.foodSearchBarViewModel,
         uiState = uiState,
         onFoodSelected = viewModel::onFoodSelected,
-        onFoodItemSelectionChanged = viewModel::onFoodItemSelectionChanged,
+        onFoodDeleted = viewModel::onFoodDeleted,
         showNextMessage = viewModel::showNextMessage,
         undoDeletion = viewModel::undoDeletion
     )
@@ -78,7 +83,7 @@ private fun FoodScreenContent(
     onBack: () -> Unit,
     onAddFood: () -> Unit,
     onFoodSelected: (Food) -> Unit,
-    onFoodItemSelectionChanged: (Boolean, SelectableFood) -> Unit,
+    onFoodDeleted: (Food) -> Unit,
     foodSearchBarViewModel: FoodSearchBarViewModel?,
     showNextMessage: () -> Unit,
     undoDeletion: (Food) -> Unit,
@@ -128,6 +133,7 @@ private fun FoodScreenContent(
                 .clip(RoundedCornerShape(10.dp)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             FoodSearchBar(
                 leadingIcon = Icons.Default.Search,
                 placeHolder = stringResource(id = R.string.search_food),
@@ -137,28 +143,61 @@ private fun FoodScreenContent(
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            Card {
-                LazyColumn {
-                    items(uiState.selectedFoods) { selectableFood ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = selectableFood.selected,
-                                onCheckedChange = { checked ->
-                                    onFoodItemSelectionChanged(
-                                        checked,
-                                        selectableFood
+            Card(modifier = Modifier.fillMaxWidth()) {
+                if(uiState.selectedFoods.isNotEmpty()){
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                    ) {
+                        items(uiState.selectedFoods) { food ->
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(text = food.name)
+                                Spacer(modifier = Modifier.weight(1f))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable { onFoodDeleted(food) },
+                                ){
+                                    Icon(
+                                        modifier = Modifier.padding(4.dp),
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null
                                     )
                                 }
-                            )
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(text = selectableFood.food.name)
+                            }
                         }
                     }
+                }
+                else {
+                    Row(
+                        modifier = Modifier.padding(12.dp)
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.IndeterminateCheckBox,
+                            contentDescription = null,
+                        )
+                        Spacer(modifier = Modifier.width(13.dp))
+                        Text(text = stringResource(id = R.string.nothing_selected))
+                    }
+                }
+            }
+            Button(
+                modifier = Modifier.padding(top = 15.dp),
+                enabled = uiState.selectedFoods.isNotEmpty(),
+                onClick = {  },
+                ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Icon(
+                        imageVector = Icons.Default.LibraryAdd,
+                        contentDescription = null,
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "Add")
                 }
             }
         }
@@ -178,10 +217,10 @@ private fun FoodTopAppBar(onBack: () -> Unit) {
     )
 }
 
-@Preview(name = "Food Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "Food Screen Preview Light")
+@Preview(name = "Food Screen Items selected Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Food Screen Items selected Preview Light")
 @Composable
-private fun FoodScreenPreview() {
+private fun FoodScreenItemsSelectedPreview() {
     TriggerTraceTheme {
         FoodScreenContent(
             modifier = Modifier,
@@ -190,15 +229,34 @@ private fun FoodScreenPreview() {
             foodSearchBarViewModel = null,
             uiState = FoodScreenUIState(
                 selectedFoods = listOf(
-                    SelectableFood(Food(name = "Milk"), selected = true),
-                    SelectableFood(Food(name = "Chocolate"), selected = false),
-                    SelectableFood(Food(name = "Water"), selected = true),
+                    Food(name = "Milk"),
+                    Food(name = "Chocolate"),
+                    Food(name = "Water"),
                 )
             ),
             onFoodSelected = {},
-            onFoodItemSelectionChanged = { _, _ -> },
             showNextMessage = {},
-            undoDeletion = {}
+            undoDeletion = {},
+            onFoodDeleted = {}
+        )
+    }
+}
+
+@Preview(name = "Food Screen no items selected Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Food Screen no items selected Preview Light")
+@Composable
+private fun FoodScreenNoItemsSelectedPreview() {
+    TriggerTraceTheme {
+        FoodScreenContent(
+            modifier = Modifier,
+            onBack = {},
+            onAddFood = {},
+            foodSearchBarViewModel = null,
+            uiState = FoodScreenUIState(),
+            onFoodSelected = {},
+            showNextMessage = {},
+            undoDeletion = {},
+            onFoodDeleted = {}
         )
     }
 }

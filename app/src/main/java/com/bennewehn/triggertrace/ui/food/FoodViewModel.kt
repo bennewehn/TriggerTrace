@@ -9,8 +9,6 @@ import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,13 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class SelectableFood(
-    val food: Food,
-    val selected: Boolean
-)
-
 data class FoodScreenUIState(
-    val selectedFoods: List<SelectableFood> = emptyList(),
+    val selectedFoods: List<Food> = emptyList(),
     val messageQueue: List<Pair<String, Food>> = emptyList()
 )
 
@@ -39,15 +32,12 @@ class FoodViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(FoodScreenUIState())
     val uiState: StateFlow<FoodScreenUIState> = _uiState.asStateFlow()
 
-    // Job reference for background item deletion
-    private var jobs: MutableMap<String, Job> = mutableMapOf()
-
     private fun addFood(food: Food) {
-        val containsFood = _uiState.value.selectedFoods.any { it.food == food }
+        val containsFood = _uiState.value.selectedFoods.any { it == food }
         if (!containsFood) {
             _uiState.update {
                 it.copy(
-                    selectedFoods = it.selectedFoods + SelectableFood(food, true)
+                    selectedFoods = it.selectedFoods + food
                 )
             }
         }
@@ -58,43 +48,18 @@ class FoodViewModel @Inject constructor(
         addFood(food)
     }
 
-    fun onFoodItemSelectionChanged(selected: Boolean, selectableFood: SelectableFood) {
-
-        // Update the UI state immediately
+    fun onFoodDeleted(food: Food) {
         _uiState.update {
             it.copy(
-                selectedFoods = _uiState.value.selectedFoods.map { e ->
-                    if (e.food == selectableFood.food) {
-                        e.copy(selected = selected)
-                    } else {
-                        e
-                    }
+                selectedFoods = _uiState.value.selectedFoods.filter { item ->
+                    item != food
                 }
             )
         }
-
-        // Cancel the previous job if it exists
-        jobs[selectableFood.food.name]?.cancel()
-
-        // Launch deletion job if item unselected
-        if (!selected) {
-            jobs[selectableFood.food.name] = viewModelScope.launch {
-                delay(1000)
-                // delete
-                _uiState.update {
-                    it.copy(
-                        selectedFoods = _uiState.value.selectedFoods.filter { item ->
-                            item.food.name != selectableFood.food.name || item.selected
-                        }
-                    )
-                }
-                // Enqueue the message only if an item was deleted
-                enqueueMessage(
-                    "${selectableFood.food.name} ${appContext.getString(R.string.deleted)}.",
-                    selectableFood.food
-                )
-            }
-        }
+        enqueueMessage(
+            "${food.name} ${appContext.getString(R.string.deleted)}.",
+            food
+        )
     }
 
     private fun enqueueMessage(message: String, food: Food) {

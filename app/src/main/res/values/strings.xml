@@ -22,4 +22,5 @@
     <string name="export_as_csv">Export as CSV</string>
     <string name="deleted">deleted</string>
     <string name="UNDO">UNDO</string>
+    <string name="nothing_selected">Nothing selected</string>
 </resources>

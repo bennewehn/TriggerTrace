@@ -39,10 +39,10 @@ class FoodViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(FoodScreenUIState())
     val uiState: StateFlow<FoodScreenUIState> = _uiState.asStateFlow()
 
-    // Job reference for background work
-    private var debounceJob: MutableMap<SelectableFood, Job> = mutableMapOf()
+    // Job reference for background item deletion
+    private var jobs: MutableMap<String, Job> = mutableMapOf()
 
-    private fun addFood(food: Food){
+    private fun addFood(food: Food) {
         val containsFood = _uiState.value.selectedFoods.any { it.food == food }
         if (!containsFood) {
             _uiState.update {
@@ -59,32 +59,36 @@ class FoodViewModel @Inject constructor(
     }
 
     fun onFoodItemSelectionChanged(selected: Boolean, selectableFood: SelectableFood) {
-        // Cancel the previous job if it exists
-        debounceJob[selectableFood]?.cancel()
 
-        debounceJob[selectableFood] = viewModelScope.launch {
-            // Update the UI state immediately
-            _uiState.value = _uiState.value.copy(
-                selectedFoods = _uiState.value.selectedFoods.map {
-                    if (it.food == selectableFood.food) {
-                        it.copy(selected = selected)
+        // Update the UI state immediately
+        _uiState.update {
+            it.copy(
+                selectedFoods = _uiState.value.selectedFoods.map { e ->
+                    if (e.food == selectableFood.food) {
+                        e.copy(selected = selected)
                     } else {
-                        it
+                        e
                     }
                 }
             )
+        }
 
-            delay(1000)
+        // Cancel the previous job if it exists
+        jobs[selectableFood.food.name]?.cancel()
 
-            // Check the updated state and conditionally remove the item
-            _uiState.value = _uiState.value.copy(
-                selectedFoods = _uiState.value.selectedFoods.filter { item ->
-                    item.food != selectableFood.food || item.selected
+        // Launch deletion job if item unselected
+        if (!selected) {
+            jobs[selectableFood.food.name] = viewModelScope.launch {
+                delay(1000)
+                // delete
+                _uiState.update {
+                    it.copy(
+                        selectedFoods = _uiState.value.selectedFoods.filter { item ->
+                            item.food.name != selectableFood.food.name || item.selected
+                        }
+                    )
                 }
-            )
-
-            // item deleted, show message
-            if(!selected){
+                // Enqueue the message only if an item was deleted
                 enqueueMessage(
                     "${selectableFood.food.name} ${appContext.getString(R.string.deleted)}.",
                     selectableFood.food
@@ -113,7 +117,7 @@ class FoodViewModel @Inject constructor(
         }
     }
 
-    fun undoDeletion(food: Food){
+    fun undoDeletion(food: Food) {
         addFood(food)
     }
 }

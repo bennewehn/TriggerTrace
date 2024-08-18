@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -21,9 +20,6 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarDuration
@@ -34,17 +30,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,6 +43,7 @@ import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.ui.components.FoodSearchBar
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
+import com.bennewehn.triggertrace.ui.components.NameInputField
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 
@@ -60,14 +51,13 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 fun AddFoodScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    onFoodAdded: () -> Unit,
     viewModel: AddFoodViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.foodAddedSuccessfully) {
         if (uiState.foodAddedSuccessfully) {
-            onFoodAdded()
+            onBack()
         }
     }
 
@@ -108,15 +98,6 @@ fun AddFoodScreenContent(
         }
     ) { innerPadding ->
 
-        val focusRequester = remember { FocusRequester() }
-        var hasFocused by rememberSaveable { mutableStateOf(false) }
-
-        LaunchedEffect(hasFocused) {
-            if (!hasFocused) {
-                focusRequester.requestFocus()
-                hasFocused = true
-            }
-        }
 
         uiState.userMessage?.let { userMessage ->
             val snackbarText = stringResource(id = userMessage)
@@ -136,26 +117,7 @@ fun AddFoodScreenContent(
                 .fillMaxSize()
         ) {
             Column {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    value = uiState.name,
-                    onValueChange = updateName,
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.add_food_name_hint),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
-                    textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    maxLines = 1,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = Color.Transparent,
-                        cursorColor = MaterialTheme.colorScheme.secondary.copy(alpha = 1f)
-                    ),
-                )
+                NameInputField(name = uiState.name, onNameChanged = updateName)
 
                 FoodSearchBar(
                     leadingIcon = Icons.Filled.Add,

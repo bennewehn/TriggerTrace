@@ -74,7 +74,6 @@ fun AppNav(
         composable<Screen.AddFoodScreen> {
             AddFoodScreen(
                 onBack = { navController.navigateUp() },
-                onFoodAdded = { navController.navigateUp() }
             )
         }
         composable<Screen.DiaryScreen> {

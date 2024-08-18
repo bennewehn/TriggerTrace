@@ -21,7 +21,8 @@ import javax.inject.Inject
 
 data class FoodScreenUIState(
     val selectedFoods: List<Food> = emptyList(),
-    val messageQueue: List<Pair<String, Food>> = emptyList()
+    val messageQueue: List<Pair<String, Food>> = emptyList(),
+    val showSuccessfulDialog: Boolean = false
 )
 
 @HiltViewModel
@@ -42,6 +43,12 @@ class FoodViewModel @Inject constructor(
             val entries = _uiState.value.selectedFoods.map { FoodEntry(foodId = it.id) }
             try{
                 foodEntryRepository.insertFoodEntries(entries)
+                _uiState.update {
+                    it.copy(
+                        showSuccessfulDialog = true,
+                        selectedFoods = emptyList()
+                    )
+                }
             }
             catch (e: Exception){
                 Toast.makeText(appContext, e.message, Toast.LENGTH_SHORT).show()
@@ -96,6 +103,14 @@ class FoodViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun onDismissSuccessfulDialog(){
+        _uiState.update {
+            it.copy(
+                showSuccessfulDialog = false
+            )
         }
     }
 

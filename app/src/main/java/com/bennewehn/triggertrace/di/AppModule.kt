@@ -5,9 +5,13 @@ import android.content.Context
 import androidx.room.Room
 import com.bennewehn.triggertrace.data.DefaultFoodEntryRepository
 import com.bennewehn.triggertrace.data.DefaultFoodRepository
+import com.bennewehn.triggertrace.data.DefaultSymptomEntryRepository
+import com.bennewehn.triggertrace.data.DefaultSymptomRepository
 import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.data.SettingsStore
+import com.bennewehn.triggertrace.data.SymptomEntryRepository
+import com.bennewehn.triggertrace.data.SymptomRepository
 import com.bennewehn.triggertrace.data.TriggerTraceDatabase
 import dagger.Module
 import dagger.Provides
@@ -40,6 +44,18 @@ object AppModule {
     @Singleton
     fun provideFoodEntryRepository(db: TriggerTraceDatabase): FoodEntryRepository{
         return DefaultFoodEntryRepository(db.foodEntryDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSymptomRepository(db: TriggerTraceDatabase): SymptomRepository{
+        return DefaultSymptomRepository(db.symptomDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSymptomEntryRepository(db: TriggerTraceDatabase): SymptomEntryRepository {
+        return DefaultSymptomEntryRepository(db.symptomEntryDao)
     }
 
     @Provides

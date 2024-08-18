@@ -9,11 +9,18 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import java.io.IOException
 
 
-@Database(entities = [Food::class, FoodComposition::class, FoodEntry::class], version = 1)
+@Database(entities = [
+    Food::class,
+    FoodComposition::class,
+    FoodEntry::class,
+    Symptom::class,
+    SymptomEntry::class], version = 1)
 @TypeConverters(RoomTypeConverters::class)
 abstract class TriggerTraceDatabase: RoomDatabase() {
     abstract val foodDao: FoodDao
     abstract val foodEntryDao: FoodEntryDao
+    abstract val symptomDao: SymptomDao
+    abstract val symptomEntryDao: SymptomEntryDao
     abstract val triggerTraceDatabaseDao: TriggerTraceDatabaseDao
 
     /**

@@ -36,7 +36,7 @@ class AddFoodViewModel @Inject constructor(
         // Check if name is empty
         if (uiState.value.name.isEmpty()) {
             _uiState.update {
-                it.copy(userMessage = R.string.empty_food_name_message)
+                it.copy(userMessage = R.string.name_cannot_be_empty_message)
             }
             return
         }
@@ -50,7 +50,7 @@ class AddFoodViewModel @Inject constructor(
                 }
             } catch (e: SQLiteConstraintException) {
                 _uiState.update {
-                    it.copy(userMessage = R.string.food_name_used_message)
+                    it.copy(userMessage = R.string.name_already_used_message)
                 }
             } catch (e: Exception) {
                 _uiState.update {

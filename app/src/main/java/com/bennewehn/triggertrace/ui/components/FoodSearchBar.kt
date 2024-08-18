@@ -4,18 +4,14 @@ import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarColors
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -35,25 +31,23 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodSearchBar(
-    modifier: Modifier = Modifier,
-    leadingIcon: ImageVector,
-    placeHolder: String = "Placeholder",
-    colors: SearchBarColors = SearchBarDefaults.colors(),
     onFoodSelected: (Food) -> Unit,
+    leadingIcon: ImageVector = Icons.Default.Search,
+    placeHolder: String = "Search",
+    colors: SearchBarColors = SearchBarDefaults.colors(),
     viewModel: FoodSearchBarViewModel?
 ) {
 
     val uiState = viewModel?.uiState?.collectAsStateWithLifecycle()?.value ?: FoodSearchBarState()
 
     MyFoodSearchBar(
-        modifier = modifier,
+        updateSearchQuery = { query -> viewModel?.updateSearchQuery(query) },
         leadingIcon = leadingIcon,
         placeHolder = placeHolder,
         colors = colors,
-        updateSearchQuery = { query -> viewModel?.updateSearchQuery(query) },
-        updateSearchBarActive = { active -> viewModel?.updateSearchBarActive(active) },
         onFoodSelected = onFoodSelected,
-        foodSearchBarState = uiState
+        foodSearchBarState = uiState,
+        searchBarActiveChanged = {active -> viewModel?.updateSearchBarActive(active)}
     )
 
 }
@@ -61,48 +55,28 @@ fun FoodSearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MyFoodSearchBar(
-    modifier: Modifier,
     leadingIcon: ImageVector,
     placeHolder: String,
-    updateSearchQuery: (String) -> Unit,
-    updateSearchBarActive: (Boolean) -> Unit,
-    onFoodSelected: (Food) -> Unit,
     colors: SearchBarColors,
+    updateSearchQuery: (String) -> Unit,
+    onFoodSelected: (Food) -> Unit,
+    searchBarActiveChanged: (Boolean) -> Unit,
     foodSearchBarState: FoodSearchBarState
 ) {
 
     val foodPagedData: LazyPagingItems<Food>? =
         foodSearchBarState.foodPagedData?.collectAsLazyPagingItems()
 
-    SearchBar(
-        modifier = modifier,
-        query = foodSearchBarState.searchQuery,
-        onQueryChange = updateSearchQuery,
-        onSearch = {},
-        colors = colors,
-        active = foodSearchBarState.searchBarActive,
-        onActiveChange = updateSearchBarActive,
-        windowInsets = WindowInsets(top = 0.dp),
-        placeholder = { Text(text = placeHolder) },
-        leadingIcon = { Icon(leadingIcon, null) },
-        trailingIcon = {
-            if (foodSearchBarState.searchBarActive) {
-                Icon(
-                    modifier = Modifier.clickable {
-                        if (foodSearchBarState.searchQuery.isNotEmpty()) {
-                            updateSearchQuery("")
-                        } else {
-                            updateSearchBarActive(false)
-                        }
-                    },
-                    imageVector = Icons.Default.Close,
-                    contentDescription = null
-                )
-            }
-        }
+    AppDefaultSearchBar(
+        onSearchQueryChanged = updateSearchQuery,
+        leadingIcon = leadingIcon,
+        placeHolder = placeHolder,
+        searchBarActive = foodSearchBarState.searchBarActive,
+        searchBarActiveChanged = searchBarActiveChanged,
+        colors = colors
     ) {
         foodPagedData?.let { lazyPagingItems ->
-            LazyColumn{
+            LazyColumn {
                 items(lazyPagingItems.itemCount) { index ->
                     val food = lazyPagingItems[index]
                     food?.let {
@@ -149,8 +123,6 @@ private fun MyFoodSearchBar(
 private fun FoodSearchBarPreview() {
     TriggerTraceTheme {
         FoodSearchBar(
-            leadingIcon = Icons.Default.Search,
-            placeHolder = "Search food",
             onFoodSelected = {},
             viewModel = null
         )

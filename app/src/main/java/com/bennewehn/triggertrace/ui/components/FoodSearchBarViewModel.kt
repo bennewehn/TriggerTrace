@@ -35,7 +35,6 @@ class FoodSearchBarViewModel(
     private val _uiState = MutableStateFlow(FoodSearchBarState())
     val uiState: StateFlow<FoodSearchBarState> = _uiState.asStateFlow()
 
-
     init {
         viewModelScope.launch {
             _uiState.map { it.searchQuery }
@@ -50,7 +49,6 @@ class FoodSearchBarViewModel(
                 }
         }
     }
-
 
     fun updateSearchQuery(query: String) {
         _uiState.update {

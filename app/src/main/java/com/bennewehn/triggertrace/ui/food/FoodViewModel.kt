@@ -17,12 +17,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 data class FoodScreenUIState(
     val selectedFoods: List<Food> = emptyList(),
     val messageQueue: List<Pair<String, Food>> = emptyList(),
-    val showSuccessfulDialog: Boolean = false
+    val showSuccessfulDialog: Boolean = false,
+    val selectedDate: Date = Date()
 )
 
 @HiltViewModel
@@ -116,5 +118,13 @@ class FoodViewModel @Inject constructor(
 
     fun undoDeletion(food: Food) {
         addFood(food)
+    }
+
+    fun updateSelectedDate(date: Date) {
+        _uiState.update {
+            it.copy(
+                selectedDate = date
+            )
+        }
     }
 }

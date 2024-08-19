@@ -43,7 +43,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,9 +59,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.ui.components.DateInputField
+import com.bennewehn.triggertrace.ui.components.DatePickerModal
 import com.bennewehn.triggertrace.ui.components.FoodSearchBar
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
+import java.util.Date
 
 @Composable
 fun FoodScreen(
@@ -82,7 +87,8 @@ fun FoodScreen(
         showNextMessage = viewModel::showNextMessage,
         undoDeletion = viewModel::undoDeletion,
         onAddSelectedFoodClicked = viewModel::onAddSelectedFood,
-        onDismissSuccessfulDialog = viewModel::onDismissSuccessfulDialog
+        onDismissSuccessfulDialog = viewModel::onDismissSuccessfulDialog,
+        updateDate = viewModel::updateSelectedDate
     )
 }
 
@@ -99,17 +105,17 @@ private fun FoodScreenContent(
     showNextMessage: () -> Unit,
     undoDeletion: (Food) -> Unit,
     uiState: FoodScreenUIState,
-    onDismissSuccessfulDialog: () -> Unit
+    onDismissSuccessfulDialog: () -> Unit,
+    updateDate: (Date) -> Unit
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
-
     val undoLabel = stringResource(id = R.string.UNDO)
+    var showDatePicker by remember { mutableStateOf(false) }
 
-    if(uiState.showSuccessfulDialog){
+    if (uiState.showSuccessfulDialog) {
         FoodAddedDialog(onDismissSuccessfulDialog)
     }
-
 
     Scaffold(
         modifier = modifier,
@@ -134,11 +140,22 @@ private fun FoodScreenContent(
                     withDismissAction = true
                 )
 
-                if(result == SnackbarResult.ActionPerformed){
+                if (result == SnackbarResult.ActionPerformed) {
                     undoDeletion(uiState.messageQueue.first().second)
                 }
                 showNextMessage()
             }
+        }
+
+        if (showDatePicker) {
+            DatePickerModal(
+                onDateSelected = { dateMillis ->
+                    dateMillis?.let {
+                        updateDate(Date(it))
+                    }
+                    showDatePicker = false
+                },
+                onDismiss = { showDatePicker = false })
         }
 
         Column(
@@ -160,7 +177,7 @@ private fun FoodScreenContent(
             Spacer(modifier = Modifier.height(50.dp))
 
             Card(modifier = Modifier.fillMaxWidth()) {
-                if(uiState.selectedFoods.isNotEmpty()){
+                if (uiState.selectedFoods.isNotEmpty()) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                     ) {
@@ -176,7 +193,7 @@ private fun FoodScreenContent(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(10.dp))
                                         .clickable { onFoodDeleted(food) },
-                                ){
+                                ) {
                                     Icon(
                                         modifier = Modifier.padding(4.dp),
                                         imageVector = Icons.Default.Delete,
@@ -186,11 +203,10 @@ private fun FoodScreenContent(
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     Row(
                         modifier = Modifier.padding(12.dp)
-                    ){
+                    ) {
                         Icon(
                             imageVector = Icons.Default.IndeterminateCheckBox,
                             contentDescription = null,
@@ -200,14 +216,22 @@ private fun FoodScreenContent(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            DateInputField(
+                openDatePicker = { showDatePicker = true},
+                selectedDate = uiState.selectedDate
+            )
+
             Button(
                 modifier = Modifier.padding(top = 15.dp),
                 enabled = uiState.selectedFoods.isNotEmpty(),
                 onClick = onAddSelectedFoodClicked,
-                ) {
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Icon(
                         imageVector = Icons.Default.LibraryAdd,
                         contentDescription = null,
@@ -223,7 +247,7 @@ private fun FoodScreenContent(
 @Composable
 private fun FoodAddedDialog(
     onDismiss: () -> Unit
-){
+) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -234,7 +258,7 @@ private fun FoodAddedDialog(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer
             )
-        ){
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -255,7 +279,9 @@ private fun FoodAddedDialog(
                 Spacer(modifier = Modifier.height(10.dp))
                 TextButton(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
                 ) {
                     Text(text = "OK")
                 }
@@ -300,12 +326,16 @@ private fun FoodScreenItemsSelectedPreview() {
             undoDeletion = {},
             onFoodDeleted = {},
             onAddSelectedFoodClicked = {},
-            onDismissSuccessfulDialog = {}
+            onDismissSuccessfulDialog = {},
+            updateDate = {}
         )
     }
 }
 
-@Preview(name = "Food Screen no items selected Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    name = "Food Screen no items selected Preview Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Preview(name = "Food Screen no items selected Preview Light")
 @Composable
 private fun FoodScreenNoItemsSelectedPreview() {
@@ -321,7 +351,8 @@ private fun FoodScreenNoItemsSelectedPreview() {
             undoDeletion = {},
             onFoodDeleted = {},
             onAddSelectedFoodClicked = {},
-            onDismissSuccessfulDialog = {}
+            onDismissSuccessfulDialog = {},
+            updateDate = {}
         )
     }
 }

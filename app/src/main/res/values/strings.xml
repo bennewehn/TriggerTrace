@@ -31,4 +31,6 @@
     <string name="one_to_ten">1 to 10</string>
     <string name="scale">Scale</string>
     <string name="no_scale_selected_message">Please select a scale.</string>
+    <string name="cancel">Cancel</string>
+    <string name="date">Date</string>
 </resources>

@@ -57,6 +57,7 @@ fun AppDefaultSearchBar(
                     modifier = Modifier.clickable {
                         if (searchQuery.isNotEmpty()) {
                             searchQuery = ""
+                            onSearchQueryChanged(searchQuery)
                         } else {
                             searchBarActiveChanged(false)
                         }

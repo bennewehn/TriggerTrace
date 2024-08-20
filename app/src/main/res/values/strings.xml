@@ -33,4 +33,5 @@
     <string name="no_scale_selected_message">Please select a scale.</string>
     <string name="cancel">Cancel</string>
     <string name="date">Date</string>
+    <string name="time">Time</string>
 </resources>

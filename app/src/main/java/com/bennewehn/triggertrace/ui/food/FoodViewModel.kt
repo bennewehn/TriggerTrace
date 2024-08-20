@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
@@ -42,7 +43,7 @@ class FoodViewModel @Inject constructor(
     fun onAddSelectedFood(){
         // add selected food items to db
         viewModelScope.launch {
-            val entries = _uiState.value.selectedFoods.map { FoodEntry(foodId = it.id) }
+            val entries = _uiState.value.selectedFoods.map { FoodEntry(foodId = it.id, timestamp = _uiState.value.selectedDate) }
             try{
                 foodEntryRepository.insertFoodEntries(entries)
                 _uiState.update {
@@ -124,6 +125,28 @@ class FoodViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 selectedDate = date
+            )
+        }
+    }
+
+    fun updateHour(hour: Int){
+        val calendar = Calendar.getInstance()
+        calendar.time = _uiState.value.selectedDate
+        calendar.set(Calendar.HOUR_OF_DAY, hour)
+        _uiState.update {
+            it.copy(
+                selectedDate = calendar.time
+            )
+        }
+    }
+
+    fun updateMinute(minute: Int){
+        val calendar = Calendar.getInstance()
+        calendar.time = _uiState.value.selectedDate
+        calendar.set(Calendar.MINUTE, minute)
+        _uiState.update {
+            it.copy(
+                selectedDate = calendar.time
             )
         }
     }

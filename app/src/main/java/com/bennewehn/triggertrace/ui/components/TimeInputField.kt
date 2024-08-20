@@ -5,7 +5,7 @@ import android.text.format.DateFormat
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -19,25 +19,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
+import java.util.Calendar
 import java.util.Date
 
 @Composable
-fun DateInputField(
+fun TimeInputField(
     modifier: Modifier = Modifier,
-    openDatePicker: () -> Unit,
-    selectedDate: Date
+    openTimePicker: () -> Unit,
+    selectedTime: Date
 ){
-    val dateFormat: java.text.DateFormat = DateFormat.getDateFormat(LocalContext.current)
-    val formattedDate = dateFormat.format(selectedDate)
+
+    val time = DateFormat.getTimeFormat(LocalContext.current).format(selectedTime)
 
     OutlinedTextField(
         modifier = modifier,
         readOnly = true,
-        value = formattedDate,
+        value = time,
         onValueChange = {},
-        label = { Text(text = stringResource(id = R.string.date)) },
+        label = { Text(text = stringResource(id = R.string.time)) },
         trailingIcon = {
-            Icon(imageVector = Icons.Default.EditCalendar, contentDescription = null)
+            Icon(imageVector = Icons.Default.AccessTimeFilled, contentDescription = null)
         },
         // works like onClick
         interactionSource = remember { MutableInteractionSource() }
@@ -45,7 +46,7 @@ fun DateInputField(
                 LaunchedEffect(interactionSource) {
                     interactionSource.interactions.collect {
                         if (it is PressInteraction.Release) {
-                            openDatePicker()
+                            openTimePicker()
                         }
                     }
                 }
@@ -53,13 +54,13 @@ fun DateInputField(
     )
 }
 
-@Preview(name = "DateInputField Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "DateInputField Preview Light")
+@Preview(name = "TimeInputField Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "TimeInputField Preview Light")
 @Composable
-fun DateInputFieldPreview(){
+fun TimeInputFieldPreview(){
     TriggerTraceTheme {
         Surface{
-            DateInputField(openDatePicker = { }, selectedDate = Date())
+            TimeInputField(openTimePicker = {}, selectedTime = Date())
         }
     }
 }

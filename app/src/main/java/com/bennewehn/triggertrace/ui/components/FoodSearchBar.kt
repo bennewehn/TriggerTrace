@@ -31,6 +31,7 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodSearchBar(
+    modifier: Modifier = Modifier,
     onFoodSelected: (Food) -> Unit,
     leadingIcon: ImageVector = Icons.Default.Search,
     placeHolder: String = "Search",
@@ -41,6 +42,7 @@ fun FoodSearchBar(
     val uiState = viewModel?.uiState?.collectAsStateWithLifecycle()?.value ?: FoodSearchBarState()
 
     MyFoodSearchBar(
+        modifier = modifier,
         updateSearchQuery = { query -> viewModel?.updateSearchQuery(query) },
         leadingIcon = leadingIcon,
         placeHolder = placeHolder,
@@ -55,6 +57,7 @@ fun FoodSearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MyFoodSearchBar(
+    modifier: Modifier = Modifier,
     leadingIcon: ImageVector,
     placeHolder: String,
     colors: SearchBarColors,
@@ -68,6 +71,7 @@ private fun MyFoodSearchBar(
         foodSearchBarState.foodPagedData?.collectAsLazyPagingItems()
 
     AppDefaultSearchBar(
+        modifier = modifier,
         onSearchQueryChanged = updateSearchQuery,
         leadingIcon = leadingIcon,
         placeHolder = placeHolder,

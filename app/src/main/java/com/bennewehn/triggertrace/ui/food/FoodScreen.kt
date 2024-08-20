@@ -63,6 +63,8 @@ import com.bennewehn.triggertrace.ui.components.DateInputField
 import com.bennewehn.triggertrace.ui.components.DatePickerModal
 import com.bennewehn.triggertrace.ui.components.FoodSearchBar
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
+import com.bennewehn.triggertrace.ui.components.TimeInputField
+import com.bennewehn.triggertrace.ui.components.TimePickerDialog
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 import java.util.Date
 
@@ -88,7 +90,9 @@ fun FoodScreen(
         undoDeletion = viewModel::undoDeletion,
         onAddSelectedFoodClicked = viewModel::onAddSelectedFood,
         onDismissSuccessfulDialog = viewModel::onDismissSuccessfulDialog,
-        updateDate = viewModel::updateSelectedDate
+        updateDate = viewModel::updateSelectedDate,
+        updateHour = viewModel::updateHour,
+        updateMinute = viewModel::updateMinute
     )
 }
 
@@ -106,12 +110,15 @@ private fun FoodScreenContent(
     undoDeletion: (Food) -> Unit,
     uiState: FoodScreenUIState,
     onDismissSuccessfulDialog: () -> Unit,
-    updateDate: (Date) -> Unit
+    updateDate: (Date) -> Unit,
+    updateHour: (Int) -> Unit,
+    updateMinute: (Int) -> Unit
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val undoLabel = stringResource(id = R.string.UNDO)
     var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
 
     if (uiState.showSuccessfulDialog) {
         FoodAddedDialog(onDismissSuccessfulDialog)
@@ -158,6 +165,17 @@ private fun FoodScreenContent(
                 onDismiss = { showDatePicker = false })
         }
 
+        if (showTimePicker){
+            TimePickerDialog(
+                onDismiss = { showTimePicker = false },
+                onConfirm = {
+                    showTimePicker = false
+                    updateHour(it.hour)
+                    updateMinute(it.minute)
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -167,6 +185,20 @@ private fun FoodScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            DateInputField(
+                openDatePicker = { showDatePicker = true},
+                selectedDate = uiState.selectedDate
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            TimeInputField(
+                openTimePicker = { showTimePicker = true },
+                selectedTime = uiState.selectedDate
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
             FoodSearchBar(
                 leadingIcon = Icons.Default.Search,
                 placeHolder = stringResource(id = R.string.search_food),
@@ -174,7 +206,7 @@ private fun FoodScreenContent(
                 viewModel = foodSearchBarViewModel
             )
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 if (uiState.selectedFoods.isNotEmpty()) {
@@ -217,15 +249,9 @@ private fun FoodScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-            DateInputField(
-                openDatePicker = { showDatePicker = true},
-                selectedDate = uiState.selectedDate
-            )
+            Spacer(modifier = Modifier.height(50.dp))
 
             Button(
-                modifier = Modifier.padding(top = 15.dp),
                 enabled = uiState.selectedFoods.isNotEmpty(),
                 onClick = onAddSelectedFoodClicked,
             ) {
@@ -327,7 +353,9 @@ private fun FoodScreenItemsSelectedPreview() {
             onFoodDeleted = {},
             onAddSelectedFoodClicked = {},
             onDismissSuccessfulDialog = {},
-            updateDate = {}
+            updateDate = {},
+            updateMinute = {},
+            updateHour = {}
         )
     }
 }
@@ -352,7 +380,9 @@ private fun FoodScreenNoItemsSelectedPreview() {
             onFoodDeleted = {},
             onAddSelectedFoodClicked = {},
             onDismissSuccessfulDialog = {},
-            updateDate = {}
+            updateDate = {},
+            updateHour = {},
+            updateMinute = {}
         )
     }
 }

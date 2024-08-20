@@ -10,17 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,9 +32,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bennewehn.triggertrace.R
-import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.data.Symptom
 import com.bennewehn.triggertrace.ui.components.AppDefaultSearchBar
+import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable
@@ -71,7 +68,12 @@ private fun SymptomsScreenContent(
         state.symptomPagedData?.collectAsLazyPagingItems()
 
     Scaffold(
-        topBar = { SymptomsTopAppBar(onBack) },
+        topBar = {
+            NavigateBackTopAppBar(
+                title = stringResource(id = R.string.symptom_screen_title),
+                onBack = onBack
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddSymptom) {
                 Icon(Icons.Filled.Add, stringResource(id = R.string.add_food_btn))
@@ -131,19 +133,6 @@ private fun SymptomsScreenContent(
 
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SymptomsTopAppBar(onBack: () -> Unit){
-    TopAppBar(
-        title = { Text(text = stringResource(id = R.string.symptom_screen_title)) },
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back_button))
-            }
-        },
-    )
 }
 
 @Preview(name = "Symptoms Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

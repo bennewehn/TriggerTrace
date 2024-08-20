@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,7 +16,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -25,7 +23,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Scale
 import com.bennewehn.triggertrace.ui.components.NameInputField
+import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable
@@ -85,7 +83,12 @@ private fun AddSymptomScreenContent(
 
     Scaffold(
         modifier = modifier,
-        topBar = { AddSymptomTopAppBar(onBack) },
+        topBar = {
+            NavigateBackTopAppBar(
+                onBack = onBack,
+                title = stringResource(id = R.string.add_symptom_title),
+            )
+        },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
@@ -168,19 +171,6 @@ private fun AddSymptomScreenContent(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AddSymptomTopAppBar(onBack: () -> Unit) {
-    TopAppBar(
-        title = { Text(text = stringResource(id = R.string.add_symptom_title)) },
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back_button))
-            }
-        },
-    )
 }
 
 @Preview(name = "Add Symptom Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

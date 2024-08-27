@@ -21,9 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.IndeterminateCheckBox
-import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.ui.components.AddButton
 import com.bennewehn.triggertrace.ui.components.DateInputField
 import com.bennewehn.triggertrace.ui.components.DatePickerModal
 import com.bennewehn.triggertrace.ui.components.FoodSearchBar
@@ -254,21 +253,10 @@ private fun FoodScreenContent(
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            Button(
+            AddButton(
                 enabled = uiState.selectedFoods.isNotEmpty(),
-                onClick = onAddSelectedFoodClicked,
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LibraryAdd,
-                        contentDescription = null,
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = "Add")
-                }
-            }
+                onClick = onAddSelectedFoodClicked
+            )
         }
     }
 }

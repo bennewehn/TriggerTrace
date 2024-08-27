@@ -37,4 +37,5 @@
     <string name="rate_symptom">Rate symptom</string>
     <string name="on_a_scale_from_one_to_ten">on a scale from one to ten</string>
     <string name="rate_title">Rate</string>
+    <string name="add">Add</string>
 </resources>

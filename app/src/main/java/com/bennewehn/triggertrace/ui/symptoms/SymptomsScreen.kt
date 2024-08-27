@@ -1,6 +1,7 @@
 package com.bennewehn.triggertrace.ui.symptoms
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,7 @@ viewModel: SymptomsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+
     SymptomsScreenContent(
         onBack = onBack,
         onAddSymptom = onAddSymptom,
@@ -83,6 +85,9 @@ private fun SymptomsScreenContent(
         Column(
             modifier = Modifier.padding(innerPadding)
         ){
+
+
+
             AppDefaultSearchBar(
                 searchBarActive = true,
                 searchBarActiveChanged = {},
@@ -129,6 +134,10 @@ private fun SymptomsScreenContent(
                         }
                     }
                 }
+            }
+
+            BackHandler(true) {
+                onBack()
             }
 
         }

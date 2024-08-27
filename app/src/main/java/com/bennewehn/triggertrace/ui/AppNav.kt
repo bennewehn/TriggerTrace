@@ -14,6 +14,7 @@ import com.bennewehn.triggertrace.ui.home.HomeScreen
 import com.bennewehn.triggertrace.ui.settings.InfoScreen
 import com.bennewehn.triggertrace.ui.settings.SettingsScreen
 import com.bennewehn.triggertrace.ui.symptoms.AddSymptomScreen
+import com.bennewehn.triggertrace.ui.symptoms.OneToTenRatingScreen
 import com.bennewehn.triggertrace.ui.symptoms.SymptomsScreen
 
 
@@ -63,7 +64,21 @@ fun AppNav(
                     navController.navigate(Screen.AddSymptomScreen) {
                         launchSingleTop = true
                     }
+                },
+                navigateScreen = {
+                    navController.navigate(it){
+                        launchSingleTop = true
+                    }
                 }
+            )
+        }
+        composable<Screen.OneToTenRatingScreen>(
+            typeMap = Screen.OneToTenRatingScreen.typeMap
+        ) { backStackEntry ->
+            val screen = Screen.OneToTenRatingScreen.from(backStackEntry)
+            OneToTenRatingScreen(
+                onBack = { navController.navigateUp() },
+                symptom = screen.symptom
             )
         }
         composable<Screen.AddSymptomScreen> {

@@ -53,10 +53,6 @@ class SymptomsViewModel @Inject constructor(
         }
     }
 
-    fun onSymptomSelected(symptom: Symptom){
-
-    }
-
     fun updateSearchQuery(query: String) {
         _uiState.update {
             it.copy(searchQuery = query)

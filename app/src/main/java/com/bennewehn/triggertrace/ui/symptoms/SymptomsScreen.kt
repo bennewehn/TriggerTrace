@@ -33,7 +33,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bennewehn.triggertrace.R
+import com.bennewehn.triggertrace.data.Scale
 import com.bennewehn.triggertrace.data.Symptom
+import com.bennewehn.triggertrace.ui.Screen
 import com.bennewehn.triggertrace.ui.components.AppDefaultSearchBar
 import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
@@ -42,6 +44,7 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 fun SymptomsScreen(
 onBack: () -> Unit,
 onAddSymptom: () -> Unit,
+navigateScreen: (Screen) -> Unit,
 viewModel: SymptomsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,7 +54,13 @@ viewModel: SymptomsViewModel = hiltViewModel()
         onBack = onBack,
         onAddSymptom = onAddSymptom,
         state = uiState,
-        onSymptomSelected = viewModel::onSymptomSelected,
+        onSymptomSelected = { symptom: Symptom ->
+            when(symptom.scale){
+                Scale.NUMERIC -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
+                Scale.CATEGORICAL -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
+                Scale.BINARY -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
+            }
+        },
         onSearchQueryUpdated = viewModel::updateSearchQuery
     )
 

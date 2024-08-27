@@ -4,11 +4,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 enum class Scale{
     NUMERIC, CATEGORICAL, BINARY
 }
 
+@Serializable
 @Entity(
     tableName = "symptom",
     indices = [Index(value = ["name"], unique = true)]

@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -16,6 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,8 +52,35 @@ fun OneToTenRatingScreen(
         Box(
             modifier = Modifier
                 .padding(innerPadding)
+                .padding(horizontal = 20.dp)
                 .fillMaxSize()
         ) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.4f),
+                contentAlignment = Alignment.Center
+            ) {
+                val text = buildAnnotatedString {
+                    append(stringResource(id = R.string.rate_title))
+                    append(" \"")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(symptom.name)
+                    }
+                    append("\" ")
+                    append(stringResource(id = R.string.on_a_scale_from_one_to_ten))
+                    append("...")
+                }
+
+                Text(
+                    text = text,
+                    textAlign = TextAlign.Center,
+                    fontSize = 20.sp
+                )
+            }
+
+
             FlowRow(
                 modifier = Modifier.align(Alignment.Center),
                 maxItemsInEachRow = 5,
@@ -74,7 +108,7 @@ fun OneToTenRatingScreen(
 private fun SettingsScreenPreview() {
     TriggerTraceTheme {
         OneToTenRatingScreen(
-            symptom = Symptom(name = "", scale = Scale.NUMERIC),
+            symptom = Symptom(name = "headache", scale = Scale.NUMERIC),
             onBack = {}
         )
     }

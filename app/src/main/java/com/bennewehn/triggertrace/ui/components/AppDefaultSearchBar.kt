@@ -39,37 +39,44 @@ fun AppDefaultSearchBar(
     var searchQuery by remember { mutableStateOf("") }
 
     SearchBar(
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = searchQuery,
+                onQueryChange = {
+                    searchQuery = it
+                    onSearchQueryChanged(it) },
+                onSearch = {},
+                expanded = searchBarActive,
+                onExpandedChange = searchBarActiveChanged,
+                placeholder = { Text(text = placeHolder) },
+                leadingIcon = { Icon(leadingIcon, null) },
+                trailingIcon = {
+                    if (searchBarActive) {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                if (searchQuery.isNotEmpty()) {
+                                    searchQuery = ""
+                                    onSearchQueryChanged(searchQuery)
+                                } else {
+                                    searchBarActiveChanged(false)
+                                }
+                            },
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        },
+        expanded = searchBarActive,
+        onExpandedChange = searchBarActiveChanged,
         modifier = modifier,
-        query = searchQuery,
-        onQueryChange = {
-            searchQuery = it
-            onSearchQueryChanged(it) },
-        onSearch = {},
         colors = colors,
-        active = searchBarActive,
-        onActiveChange = searchBarActiveChanged ,
         windowInsets = WindowInsets(top = 0.dp),
-        placeholder = { Text(text = placeHolder) },
-        leadingIcon = { Icon(leadingIcon, null) },
-        trailingIcon = {
-            if (searchBarActive) {
-                Icon(
-                    modifier = Modifier.clickable {
-                        if (searchQuery.isNotEmpty()) {
-                            searchQuery = ""
-                            onSearchQueryChanged(searchQuery)
-                        } else {
-                            searchBarActiveChanged(false)
-                        }
-                    },
-                    imageVector = Icons.Default.Close,
-                    contentDescription = null
-                )
-            }
-        }
-    ) {
-        content()
-    }
+        content = {
+            content()
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

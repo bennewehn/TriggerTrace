@@ -57,8 +57,8 @@ viewModel: SymptomsViewModel = hiltViewModel()
         onSymptomSelected = { symptom: Symptom ->
             when(symptom.scale){
                 Scale.NUMERIC -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
-                Scale.CATEGORICAL -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
-                Scale.BINARY -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
+                Scale.CATEGORICAL -> navigateScreen(Screen.CategoricalRatingScreen(symptom))
+                Scale.BINARY -> navigateScreen(Screen.BinaryRatingScreen(symptom))
             }
         },
         onSearchQueryUpdated = viewModel::updateSearchQuery

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.SystemUpdateAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -20,7 +20,7 @@ import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable
-fun AddButton(
+fun SaveButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit
@@ -34,11 +34,11 @@ fun AddButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.LibraryAdd,
+                imageVector = Icons.Default.SystemUpdateAlt,
                 contentDescription = null,
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(text = stringResource(id = R.string.add))
+            Text(text = stringResource(id = R.string.save_to_diary))
         }
     }
 }
@@ -49,7 +49,7 @@ fun AddButton(
 private fun SettingsSwitchPreview(){
     TriggerTraceTheme {
         Surface {
-            AddButton(onClick = {})
+            SaveButton(onClick = {})
         }
     }
 }

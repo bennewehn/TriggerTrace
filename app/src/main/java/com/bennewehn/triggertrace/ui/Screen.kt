@@ -41,6 +41,44 @@ sealed class Screen{
                 backStackEntry.toRoute<OneToTenRatingScreen>()
         }
     }
+    @Serializable
+    data class BinaryRatingScreen(val symptom: Symptom): Screen(){
+        companion object {
+            val typeMap = mapOf(typeOf<Symptom>() to serializableType<Symptom>())
+
+            fun from(savedStateHandle: SavedStateHandle) =
+                savedStateHandle.toRoute<BinaryRatingScreen>(typeMap)
+
+            fun from(backStackEntry: NavBackStackEntry) =
+                backStackEntry.toRoute<BinaryRatingScreen>()
+        }
+    }
+    @Serializable
+    data class CategoricalRatingScreen(val symptom: Symptom): Screen(){
+        companion object {
+            val typeMap = mapOf(typeOf<Symptom>() to serializableType<Symptom>())
+
+            fun from(savedStateHandle: SavedStateHandle) =
+                savedStateHandle.toRoute<CategoricalRatingScreen>(typeMap)
+
+            fun from(backStackEntry: NavBackStackEntry) =
+                backStackEntry.toRoute<CategoricalRatingScreen>()
+        }
+    }
+    @Serializable
+    data class SaveSymptomEntryScreen(val symptom: Symptom, val value: Int): Screen(){
+        companion object {
+            val typeMap = mapOf(
+                typeOf<Symptom>() to serializableType<Symptom>(),
+            )
+
+            fun from(savedStateHandle: SavedStateHandle) =
+                savedStateHandle.toRoute<SaveSymptomEntryScreen>(typeMap)
+
+            fun from(backStackEntry: NavBackStackEntry) =
+                backStackEntry.toRoute<SaveSymptomEntryScreen>()
+        }
+    }
 }
 
 inline fun <reified T : Any> serializableType(

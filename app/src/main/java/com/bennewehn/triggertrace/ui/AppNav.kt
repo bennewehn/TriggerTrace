@@ -15,6 +15,9 @@ import com.bennewehn.triggertrace.ui.settings.InfoScreen
 import com.bennewehn.triggertrace.ui.settings.SettingsScreen
 import com.bennewehn.triggertrace.ui.symptoms.AddSymptomScreen
 import com.bennewehn.triggertrace.ui.symptoms.OneToTenRatingScreen
+import com.bennewehn.triggertrace.ui.symptoms.BinaryRatingScreen
+import com.bennewehn.triggertrace.ui.symptoms.CategoricalRatingScreen
+import com.bennewehn.triggertrace.ui.symptoms.SaveSymptomEntryScreen
 import com.bennewehn.triggertrace.ui.symptoms.SymptomsScreen
 
 
@@ -78,7 +81,47 @@ fun AppNav(
             val screen = Screen.OneToTenRatingScreen.from(backStackEntry)
             OneToTenRatingScreen(
                 onBack = { navController.navigateUp() },
-                symptom = screen.symptom
+                symptom = screen.symptom,
+                onValueSelected = { value: Int ->
+                    navController.navigate(Screen.SaveSymptomEntryScreen(screen.symptom, value)){
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable<Screen.BinaryRatingScreen>(
+            typeMap = Screen.BinaryRatingScreen.typeMap
+        ) { backStackEntry ->
+            val screen = Screen.BinaryRatingScreen.from(backStackEntry)
+            BinaryRatingScreen(
+                onBack = { navController.navigateUp() },
+                symptom = screen.symptom,
+                onValueSelected = { value: Boolean ->
+                    navController.navigate(Screen.SaveSymptomEntryScreen(screen.symptom, value = if (value) 0 else 1)){
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable<Screen.CategoricalRatingScreen>(
+            typeMap = Screen.CategoricalRatingScreen.typeMap
+        ) { backStackEntry ->
+            val screen = Screen.CategoricalRatingScreen.from(backStackEntry)
+            CategoricalRatingScreen(
+                onBack = { navController.navigateUp() },
+                symptom = screen.symptom,
+                onValueSelected = { value: Int ->
+                    navController.navigate(Screen.SaveSymptomEntryScreen(screen.symptom, value = value)){
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable<Screen.SaveSymptomEntryScreen>(
+            typeMap = Screen.SaveSymptomEntryScreen.typeMap
+        ) {
+            SaveSymptomEntryScreen(
+                onBack = { navController.navigateUp() }
             )
         }
         composable<Screen.AddSymptomScreen> {

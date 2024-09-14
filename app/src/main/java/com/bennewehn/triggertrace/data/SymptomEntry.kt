@@ -19,7 +19,7 @@ import java.util.Date
 )
 data class SymptomEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name="symptomId") val foodId: Long,
+    @ColumnInfo(name="symptomId") val symptomId: Long,
     @ColumnInfo(name="timestamp") val timestamp: Date = Date(),
     @ColumnInfo(name="scaleValue") val scaleValue: Int,
 )

@@ -14,7 +14,7 @@
     <string name="add_food_save">Save</string>
     <string name="settings_info">Info</string>
     <string name="info_screen_title">Info</string>
-    <string name="add_foods">Add foods</string>
+    <string name="include_foods">Include foods</string>
     <string name="name_cannot_be_empty_message">Name cannot be empty.</string>
     <string name="name_already_used_message">Name is already used.</string>
     <string name="error_message_adding_food">Error adding food.</string>

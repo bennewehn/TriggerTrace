@@ -124,7 +124,7 @@ fun AddFoodScreenContent(
 
                 FoodSearchBar(
                     leadingIcon = Icons.Filled.Add,
-                    placeHolder = stringResource(id = R.string.add_foods),
+                    placeHolder = stringResource(id = R.string.include_foods),
                     onFoodSelected = selectFood,
                     colors = SearchBarDefaults.colors(
                         containerColor = Color.Transparent

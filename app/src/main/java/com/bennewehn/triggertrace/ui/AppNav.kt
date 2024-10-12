@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bennewehn.triggertrace.ui.diary.DiaryScreen
 import com.bennewehn.triggertrace.ui.food.AddFoodScreen
 import com.bennewehn.triggertrace.ui.food.FoodScreen
+import com.bennewehn.triggertrace.ui.food.SaveFoodEntryScreen
 import com.bennewehn.triggertrace.ui.home.HomeScreen
 import com.bennewehn.triggertrace.ui.settings.InfoScreen
 import com.bennewehn.triggertrace.ui.settings.SettingsScreen
@@ -47,7 +48,20 @@ fun AppNav(
                     navController.navigate(Screen.AddFoodScreen) {
                         launchSingleTop = true
                     }
+                },
+                onAddSelectedFoodsClicked = { foods ->
+                    navController.navigate(Screen.SaveFoodEntryScreen(foods)){
+                        launchSingleTop = true
+                    }
                 }
+            )
+        }
+        composable<Screen.SaveFoodEntryScreen>(
+            typeMap = Screen.SaveFoodEntryScreen.typeMap
+        ) { backStackEntry ->
+            SaveFoodEntryScreen(
+                onBack = { navController.navigateUp() },
+                onNavigateHome = { navController.popBackStack(Screen.HomeScreen, false) }
             )
         }
         composable<Screen.SettingsScreen> {

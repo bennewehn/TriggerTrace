@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.toRoute
+import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.data.Symptom
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -79,6 +80,21 @@ sealed class Screen{
                 backStackEntry.toRoute<SaveSymptomEntryScreen>()
         }
     }
+    @Serializable
+    data class SaveFoodEntryScreen(val foods: List<Food>): Screen(){
+        companion object {
+            val typeMap = mapOf(
+                typeOf<List<Food>>() to serializableType<List<Food>>(),
+            )
+
+            fun from(savedStateHandle: SavedStateHandle) =
+                savedStateHandle.toRoute<SaveFoodEntryScreen>(typeMap)
+
+            fun from(backStackEntry: NavBackStackEntry) =
+                backStackEntry.toRoute<SaveFoodEntryScreen>()
+        }
+    }
+
 }
 
 inline fun <reified T : Any> serializableType(

@@ -121,7 +121,8 @@ fun AppNav(
             typeMap = Screen.SaveSymptomEntryScreen.typeMap
         ) {
             SaveSymptomEntryScreen(
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                onNavigateHome = { navController.popBackStack(Screen.HomeScreen, false) }
             )
         }
         composable<Screen.AddSymptomScreen> {

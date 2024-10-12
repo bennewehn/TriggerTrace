@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,66 +35,104 @@ import com.bennewehn.triggertrace.ui.components.TimePickerDialog
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveSymptomEntryScreen(
     onBack: () -> Unit,
-    viewModel: SaveSymptomEntryViewModel = hiltViewModel()
+    viewModel: SaveSymptomEntryViewModel = hiltViewModel(),
+    onNavigateHome: () -> Unit
 ){
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.navigateHome) {
+        if(uiState.navigateHome){
+            onNavigateHome()
+        }
+    }
+
+    SaveSymptomEntryScreenContent(
+        onBack = onBack,
+        updateSelectedDate = viewModel::updateSelectedDate,
+        updateMinute = viewModel::updateMinute,
+        updateHour = viewModel::updateHour,
+        uiState = uiState,
+        onSaveEntry = viewModel::saveEntry,
+        onSuccessfulDialogDismissed = viewModel::onSuccessDialogDismissed
+    )
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SaveSymptomEntryScreenContent(
+    onBack: () -> Unit,
+    updateSelectedDate: (Date) -> Unit,
+    updateHour: (Int) -> Unit,
+    updateMinute: (Int) -> Unit,
+    onSaveEntry: () -> Unit,
+    onSuccessfulDialogDismissed: () -> Unit,
+    uiState: SaveSymptomEntryState
+) {
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { NavigateBackTopAppBar(onBack = onBack, title = stringResource(id = R.string.save_entry)) }
+        topBar = {
+            NavigateBackTopAppBar(
+                onBack = onBack,
+                title = stringResource(id = R.string.save_entry)
+            )
+        }
     ) { innerPadding ->
 
-        if (uiState.showSuccessfulDialog) {
-            SuccessfulDialog(onDismiss = {})
-        }
+       if (uiState.showSuccessfulDialog) {
+            SuccessfulDialog(onDismiss = onSuccessfulDialogDismissed)
+       }
 
         if (showDatePicker) {
             DatePickerModal(
                 onDateSelected = { dateMillis ->
                     dateMillis?.let {
-                        viewModel.updateSelectedDate(Date(it))
+                        updateSelectedDate(Date(it))
                     }
                     showDatePicker = false
                 },
                 onDismiss = { showDatePicker = false })
         }
 
-        if (showTimePicker){
+        if (showTimePicker) {
             TimePickerDialog(
                 onDismiss = { showTimePicker = false },
                 onConfirm = {
                     showTimePicker = false
-                    viewModel.updateHour(it.hour)
-                    viewModel.updateMinute(it.minute)
+                    updateHour(it.hour)
+                    updateMinute(it.minute)
                 }
             )
+        }
+
+        if(uiState.showSuccessfulDialog){
+            SuccessfulDialog(onSuccessfulDialogDismissed)
         }
 
         Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-        ){
+        ) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.8f),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     DateInputField(
-                        openDatePicker = { showDatePicker = true},
+                        openDatePicker = { showDatePicker = true },
                         selectedDate = uiState.selectedDate
                     )
 
@@ -106,12 +145,10 @@ fun SaveSymptomEntryScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    SaveButton(onClick = viewModel::saveEntry)
+                    SaveButton(onClick = onSaveEntry)
                 }
             }
         }
-
-
 
     }
 }
@@ -119,10 +156,16 @@ fun SaveSymptomEntryScreen(
 @Preview(name = "Symptom Time Selection Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(name = "Symptom Time Selection Screen Preview Light")
 @Composable
-private fun SettingsScreenPreview() {
+private fun SaveSymptomEntryScreenPreview() {
     TriggerTraceTheme {
-        SaveSymptomEntryScreen(
-            onBack = {}
+        SaveSymptomEntryScreenContent(
+            onBack = {},
+            updateSelectedDate = {},
+            updateHour = {},
+            updateMinute = {},
+            uiState = SaveSymptomEntryState(),
+            onSaveEntry = {},
+            onSuccessfulDialogDismissed = {}
         )
     }
 }

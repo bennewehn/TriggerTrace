@@ -20,6 +20,7 @@ import javax.inject.Inject
 data class SaveSymptomEntryState(
     val selectedDate: Date = Date(),
     val showSuccessfulDialog: Boolean = false,
+    val navigateHome: Boolean = false
 )
 
 @HiltViewModel
@@ -42,6 +43,20 @@ class SaveSymptomEntryViewModel @Inject constructor(
         )
         viewModelScope.launch {
             symptomEntryRepository.insertSymptomEntry(entry)
+            _uiState.update {
+                it.copy(
+                    showSuccessfulDialog = true
+                )
+            }
+        }
+    }
+
+    fun onSuccessDialogDismissed(){
+        _uiState.update {
+            it.copy(
+                showSuccessfulDialog = false,
+                navigateHome = true
+            )
         }
     }
 

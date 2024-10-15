@@ -41,4 +41,15 @@
     <string name="save_to_diary">Save to diary</string>
     <string name="did_symptom">Did symptom</string>
     <string name="occur">occur</string>
+    <string name="confirm_deletion">Confirm deletion</string>
+    <string name="conflicting_items">Conflicting items</string>
+    <string name="conflicting_items_error_message1">Cannot delete</string>
+    <string name="conflicting_items_error_message2">due to conflicting elements. Make sure you delete first: </string>
+    <string name="food_deletion_conflict_diary_message1">There are already diary entries for </string>
+    <string name="food_deletion_conflict_diary_message2">Deleting the food deletes all diary entries associated with this food.</string>
+    <string name="food_deletion_msg">Are you sure you want to delete this food?</string>
+    <string name="delete">Delete</string>
+    <string name="conflicting_diary_entries">Conflicting diary entries</string>
+    <string name="type_in_delete_confirmation_msg"> Please type \'delete\' to confirm you want to delete</string>
+    <string name="backup_msg">Make sure you have made a backup.</string>
 </resources>

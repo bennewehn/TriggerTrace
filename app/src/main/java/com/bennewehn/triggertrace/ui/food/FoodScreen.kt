@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.ui.components.FoodDeletionDialogState
 import com.bennewehn.triggertrace.ui.components.FoodSearchBar
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
@@ -61,6 +62,7 @@ fun FoodScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val deleteDialogState by viewModel.foodSearchBarViewModel.deletionDialogState.collectAsStateWithLifecycle()
 
     FoodScreenContent(
         modifier = modifier,
@@ -68,6 +70,7 @@ fun FoodScreen(
         onAddFood = onAddFood,
         foodSearchBarViewModel = viewModel.foodSearchBarViewModel,
         uiState = uiState,
+        deleteDialogState = deleteDialogState,
         onFoodSelected = viewModel::onFoodSelected,
         onFoodDeleted = viewModel::onFoodDeleted,
         showNextMessage = viewModel::showNextMessage,
@@ -80,14 +83,15 @@ fun FoodScreen(
 @Composable
 private fun FoodScreenContent(
     modifier: Modifier,
-    onBack: () -> Unit,
-    onAddFood: () -> Unit,
-    onAddSelectedFoodsClicked: (List<Food>) -> Unit,
-    onFoodSelected: (Food) -> Unit,
-    onFoodDeleted: (Food) -> Unit,
+    onBack: () -> Unit = {},
+    onAddFood: () -> Unit = {},
+    onAddSelectedFoodsClicked: (List<Food>) -> Unit = {},
+    onFoodSelected: (Food) -> Unit = {},
+    onFoodDeleted: (Food) -> Unit = {},
     foodSearchBarViewModel: FoodSearchBarViewModel?,
-    showNextMessage: () -> Unit,
-    undoDeletion: (Food) -> Unit,
+    deleteDialogState: FoodDeletionDialogState,
+    showNextMessage: () -> Unit = {},
+    undoDeletion: (Food) -> Unit = {},
     uiState: FoodScreenUIState,
 ) {
 
@@ -129,6 +133,20 @@ private fun FoodScreenContent(
             }
         }
 
+        if (deleteDialogState.showDialog) {
+            foodSearchBarViewModel?.let {
+                FoodDeletionDialog(
+                    foodSearchBarViewModel = it
+                )
+            }
+        }
+
+        if (deleteDialogState.showConfirmationDialog) {
+            foodSearchBarViewModel?.let {
+                FoodDeletionConfirmationDialog(foodSearchBarViewModel = it)
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -142,6 +160,7 @@ private fun FoodScreenContent(
                 leadingIcon = Icons.Default.Search,
                 placeHolder = stringResource(id = R.string.search_food),
                 onFoodSelected = onFoodSelected,
+                enableSwipeToDelete = true,
                 viewModel = foodSearchBarViewModel
             )
 
@@ -154,7 +173,10 @@ private fun FoodScreenContent(
                     ) {
                         items(uiState.selectedFoods) { food ->
                             Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                                modifier = Modifier.padding(
+                                    horizontal = 10.dp,
+                                    vertical = 7.dp
+                                ),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Spacer(modifier = Modifier.width(5.dp))
@@ -191,9 +213,9 @@ private fun FoodScreenContent(
             Spacer(modifier = Modifier.height(50.dp))
 
             Button(
-                onClick = {onAddSelectedFoodsClicked(uiState.selectedFoods)},
+                onClick = { onAddSelectedFoodsClicked(uiState.selectedFoods) },
                 enabled = uiState.selectedFoods.isNotEmpty(),
-            ){
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
                     contentDescription = null,
@@ -211,8 +233,6 @@ private fun FoodScreenItemsSelectedPreview() {
     TriggerTraceTheme {
         FoodScreenContent(
             modifier = Modifier,
-            onBack = {},
-            onAddFood = {},
             foodSearchBarViewModel = null,
             uiState = FoodScreenUIState(
                 selectedFoods = listOf(
@@ -221,34 +241,74 @@ private fun FoodScreenItemsSelectedPreview() {
                     Food(name = "Water"),
                 )
             ),
-            onFoodSelected = {},
-            showNextMessage = {},
-            undoDeletion = {},
-            onFoodDeleted = {},
-            onAddSelectedFoodsClicked = {},
+            deleteDialogState = FoodDeletionDialogState(),
+        )
+    }
+}
+
+
+@Preview(name = "Deletion Dialog Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Deletion Dialog Preview Light")
+@Composable
+private fun FoodScreenDeletionDialogPreview() {
+    TriggerTraceTheme {
+        FoodScreenContent(
+            modifier = Modifier,
+            foodSearchBarViewModel = null,
+            uiState = FoodScreenUIState(
+                selectedFoods = listOf(
+                    Food(name = "Milk"),
+                    Food(name = "Chocolate"),
+                    Food(name = "Water"),
+                )
+            ),
+            deleteDialogState = FoodDeletionDialogState(
+                showDialog = true
+            ),
+        )
+    }
+}
+
+
+@Preview(
+    name = "Deletion Confirmation Dialog Preview Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Preview(name = "Deletion Confirmation Dialog Preview Light")
+@Composable
+private fun FoodScreenDeletionConfirmationDialogPreview() {
+    TriggerTraceTheme {
+        FoodScreenContent(
+            modifier = Modifier,
+            foodSearchBarViewModel = null,
+            uiState = FoodScreenUIState(
+                selectedFoods = listOf(
+                    Food(name = "Milk"),
+                    Food(name = "Chocolate"),
+                    Food(name = "Water"),
+                )
+            ),
+            deleteDialogState = FoodDeletionDialogState(
+                showDialog = false,
+                showConfirmationDialog = true
+            ),
         )
     }
 }
 
 @Preview(
-    name = "Food Screen no items selected Preview Dark",
+    name = "No items selected Preview Dark",
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
-@Preview(name = "Food Screen no items selected Preview Light")
+@Preview(name = "No items selected Preview Light")
 @Composable
 private fun FoodScreenNoItemsSelectedPreview() {
     TriggerTraceTheme {
         FoodScreenContent(
             modifier = Modifier,
-            onBack = {},
-            onAddFood = {},
             foodSearchBarViewModel = null,
             uiState = FoodScreenUIState(),
-            onFoodSelected = {},
-            showNextMessage = {},
-            undoDeletion = {},
-            onFoodDeleted = {},
-            onAddSelectedFoodsClicked = {},
+            deleteDialogState = FoodDeletionDialogState(),
         )
     }
 }

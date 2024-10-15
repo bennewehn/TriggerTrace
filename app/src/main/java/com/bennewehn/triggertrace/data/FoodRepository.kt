@@ -13,4 +13,8 @@ interface FoodRepository {
     suspend fun insertFoodComposition(foodComposition: FoodComposition)
 
     suspend fun insertFoodAndCompositions(food: Food, compositions: Set<Food>)
+
+    suspend fun getFoodIdsWhereIncluded(foodId: Long): List<Long>
+
+    suspend fun getFoodsByIds(foodIds: List<Long>): List<Food>
 }

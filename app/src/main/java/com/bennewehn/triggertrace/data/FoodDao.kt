@@ -23,6 +23,12 @@ interface FoodDao {
         }
     }
 
+    @Query("SELECT foodId from food_composition where composedFoodId = :foodId")
+    suspend fun getFoodIdsWhereIncluded(foodId: Long): List<Long>
+
+    @Query("SELECT * from food where id IN (:foodIds)")
+    suspend fun getFoodsByIds(foodIds: List<Long>): List<Food>
+
     @Delete
     suspend fun deleteFood(food: Food)
 

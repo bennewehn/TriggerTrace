@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,13 +25,14 @@ data class AddFoodUIState(
 
 @HiltViewModel
 class AddFoodViewModel @Inject constructor(
+    foodEntryRepository: FoodEntryRepository,
     private val foodRepository: FoodRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddFoodUIState())
     val uiState: StateFlow<AddFoodUIState> = _uiState.asStateFlow()
 
-    val foodSearchBarViewModel = FoodSearchBarViewModel(foodRepository)
+    val foodSearchBarViewModel = FoodSearchBarViewModel(foodEntryRepository, foodRepository)
 
     fun addFood() {
         // Check if name is empty
@@ -48,11 +50,11 @@ class AddFoodViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(foodAddedSuccessfully = true)
                 }
-            } catch (e: SQLiteConstraintException) {
+            } catch (_: SQLiteConstraintException) {
                 _uiState.update {
                     it.copy(userMessage = R.string.name_already_used_message)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.update {
                     it.copy(userMessage = R.string.error_message_adding_food)
                 }

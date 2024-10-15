@@ -8,7 +8,7 @@ import androidx.room.Index
     tableName = "food_composition",
     primaryKeys = ["foodId", "composedFoodId"],
     foreignKeys = [
-        ForeignKey(entity = Food::class, parentColumns = ["id"], childColumns = ["foodId"], onDelete = ForeignKey.RESTRICT),
+        ForeignKey(entity = Food::class, parentColumns = ["id"], childColumns = ["foodId"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = Food::class, parentColumns = ["id"], childColumns = ["composedFoodId"], onDelete = ForeignKey.RESTRICT)
     ],
     indices = [Index(value = ["foodId"]), Index(value = ["composedFoodId"])]

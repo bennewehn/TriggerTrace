@@ -10,4 +10,12 @@ class DefaultFoodEntryRepository(private val foodEntryDao: FoodEntryDao) : FoodE
         foodEntryDao.insertFoodEntries(foodEntries = foodEntries)
     }
 
+    override suspend fun foodEntryCount(id: Long): Long {
+        return foodEntryDao.foodEntryCount(id)
+    }
+
+    override suspend fun deleteAllByFoodId(foodId: Long) {
+        foodEntryDao.deleteAllByFoodId(foodId)
+    }
+
 }

@@ -1,23 +1,32 @@
 package com.bennewehn.triggertrace.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.SearchBarColors
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,11 +44,14 @@ fun FoodSearchBar(
     onFoodSelected: (Food) -> Unit,
     leadingIcon: ImageVector = Icons.Default.Search,
     placeHolder: String = "Search",
+    enableSwipeToDelete: Boolean = false,
     colors: SearchBarColors = SearchBarDefaults.colors(),
     viewModel: FoodSearchBarViewModel?
 ) {
 
     val uiState = viewModel?.uiState?.collectAsStateWithLifecycle()?.value ?: FoodSearchBarState()
+    val deletionDialogState = viewModel?.deletionDialogState?.collectAsStateWithLifecycle()?.value
+        ?: FoodDeletionDialogState()
 
     MyFoodSearchBar(
         modifier = modifier,
@@ -49,7 +61,10 @@ fun FoodSearchBar(
         colors = colors,
         onFoodSelected = onFoodSelected,
         foodSearchBarState = uiState,
-        searchBarActiveChanged = {active -> viewModel?.updateSearchBarActive(active)}
+        deletionDialogState = deletionDialogState,
+        searchBarActiveChanged = { active -> viewModel?.updateSearchBarActive(active) },
+        deleteFood = { food -> viewModel?.openDeletionDialog(food) },
+        enableSwipeToDelete = enableSwipeToDelete
     )
 
 }
@@ -63,8 +78,11 @@ private fun MyFoodSearchBar(
     colors: SearchBarColors,
     updateSearchQuery: (String) -> Unit,
     onFoodSelected: (Food) -> Unit,
+    deleteFood: (Food) -> Unit,
+    enableSwipeToDelete: Boolean,
     searchBarActiveChanged: (Boolean) -> Unit,
-    foodSearchBarState: FoodSearchBarState
+    foodSearchBarState: FoodSearchBarState,
+    deletionDialogState: FoodDeletionDialogState
 ) {
 
     val foodPagedData: LazyPagingItems<Food>? =
@@ -83,17 +101,70 @@ private fun MyFoodSearchBar(
             LazyColumn {
                 items(lazyPagingItems.itemCount) { index ->
                     val food = lazyPagingItems[index]
+
                     food?.let {
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onFoodSelected(food) }
-                            .padding(14.dp)
-                        ) {
-                            Text(text = food.name)
+
+                        val dismissState = rememberSwipeToDismissBoxState()
+
+                        LaunchedEffect(deletionDialogState.showDialog) {
+                            if (deletionDialogState.showDialog) {
+                                dismissState.reset()
+                            }
+                        }
+
+                        LaunchedEffect(dismissState.currentValue) {
+                            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                                deleteFood(food)
+                            }
+                        }
+
+                        if (enableSwipeToDelete) {
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                enableDismissFromStartToEnd = false,
+                                enableDismissFromEndToStart = true,
+                                backgroundContent = {
+                                    val colorState = animateColorAsState(
+                                        when (dismissState.targetValue) {
+                                            SwipeToDismissBoxValue.Settled -> Color.Gray
+                                            SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                                            SwipeToDismissBoxValue.EndToStart -> Color.Red
+                                        },
+                                        label = "Color Animation"
+                                    )
+                                    Box(
+                                        Modifier
+                                            .fillMaxSize()
+                                            .background(colorState.value)
+                                    ) {
+                                        // Show the delete icon when swiping from end to start
+                                        if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete",
+                                                modifier = Modifier
+                                                    .size(28.dp)
+                                                    .padding(end = 5.dp)
+                                                    .align(Alignment.CenterEnd),
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                }) {
+                                ListItem(
+                                    modifier = Modifier.clickable { onFoodSelected(food) },
+                                    headlineContent = { Text(food.name) },
+                                )
+                            }
+                        } else {
+                            ListItem(
+                                modifier = Modifier.clickable { onFoodSelected(food) },
+                                headlineContent = { Text(food.name) },
+                            )
+
                         }
                     }
                 }
-
                 when (lazyPagingItems.loadState.refresh) {
                     is LoadState.Loading -> {
                         item {
@@ -121,8 +192,8 @@ private fun MyFoodSearchBar(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(name = "Food Search Bar Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "Food Search Bar Preview Light")
+@Preview(name = "Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Preview Light")
 @Composable
 private fun FoodSearchBarPreview() {
     TriggerTraceTheme {

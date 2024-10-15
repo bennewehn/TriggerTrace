@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,11 +24,12 @@ data class FoodScreenUIState(
 
 @HiltViewModel
 class FoodViewModel @Inject constructor(
+    foodEntryRepository: FoodEntryRepository,
     foodRepository: FoodRepository,
     @ApplicationContext val appContext: Context
 ) : ViewModel() {
 
-    val foodSearchBarViewModel = FoodSearchBarViewModel(foodRepository)
+    val foodSearchBarViewModel = FoodSearchBarViewModel(foodEntryRepository, foodRepository)
 
     private val _uiState = MutableStateFlow(FoodScreenUIState())
     val uiState: StateFlow<FoodScreenUIState> = _uiState.asStateFlow()

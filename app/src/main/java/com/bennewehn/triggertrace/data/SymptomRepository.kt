@@ -7,4 +7,6 @@ interface SymptomRepository {
     suspend fun insertSymptom(symptom: Symptom): Long
 
     fun searchItems(query: String): Flow<PagingData<Symptom>>
+
+    suspend fun deleteSymptom(symptom: Symptom)
 }

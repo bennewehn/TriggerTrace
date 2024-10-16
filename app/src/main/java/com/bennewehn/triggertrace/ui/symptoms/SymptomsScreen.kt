@@ -2,24 +2,31 @@ package com.bennewehn.triggertrace.ui.symptoms
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,31 +44,39 @@ import com.bennewehn.triggertrace.data.Scale
 import com.bennewehn.triggertrace.data.Symptom
 import com.bennewehn.triggertrace.ui.Screen
 import com.bennewehn.triggertrace.ui.components.AppDefaultSearchBar
+import com.bennewehn.triggertrace.ui.components.DeletionConfirmationDialog
 import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable
 fun SymptomsScreen(
-onBack: () -> Unit,
-onAddSymptom: () -> Unit,
-navigateScreen: (Screen) -> Unit,
-viewModel: SymptomsViewModel = hiltViewModel()
+    onBack: () -> Unit,
+    onAddSymptom: () -> Unit,
+    navigateScreen: (Screen) -> Unit,
+    viewModel: SymptomsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val deleteDialogState by viewModel.deletionState.collectAsStateWithLifecycle()
 
     SymptomsScreenContent(
         onBack = onBack,
         onAddSymptom = onAddSymptom,
         state = uiState,
         onSymptomSelected = { symptom: Symptom ->
-            when(symptom.scale){
+            when (symptom.scale) {
                 Scale.NUMERIC -> navigateScreen(Screen.OneToTenRatingScreen(symptom))
                 Scale.CATEGORICAL -> navigateScreen(Screen.CategoricalRatingScreen(symptom))
                 Scale.BINARY -> navigateScreen(Screen.BinaryRatingScreen(symptom))
             }
         },
-        onSearchQueryUpdated = viewModel::updateSearchQuery
+        onSearchQueryUpdated = viewModel::updateSearchQuery,
+        openDeletionDialog = viewModel::openDeletionDialog,
+        deletionDialogState = deleteDialogState,
+        dismissDeletionDialog = viewModel::dismissDeletionDialog,
+        onConfirmDeletion = { deleteDialogState.symptom?.let { viewModel.deleteSymptom(it) } },
+        openDeletionConfirmationDialog = viewModel::openDeletionConfirmationDialog,
+        dismissDeletionConfirmDialog = viewModel::dismissDeletionConfirmationDialog,
+        deleteWithEntries = { deleteDialogState.symptom?.let { viewModel.deleteSymptomWithEntries(it) } }
     )
 
 }
@@ -73,8 +88,15 @@ private fun SymptomsScreenContent(
     onAddSymptom: () -> Unit,
     onSymptomSelected: (Symptom) -> Unit,
     onSearchQueryUpdated: (String) -> Unit,
-    state: SymptomsScreenState
-){
+    openDeletionDialog: (Symptom) -> Unit,
+    dismissDeletionDialog: () -> Unit,
+    dismissDeletionConfirmDialog: () -> Unit,
+    onConfirmDeletion: () -> Unit,
+    deleteWithEntries: () -> Unit,
+    openDeletionConfirmationDialog: () -> Unit,
+    state: SymptomsScreenState,
+    deletionDialogState: SymptomsDeletionState
+) {
     val symptomPagedData: LazyPagingItems<Symptom>? =
         state.symptomPagedData?.collectAsLazyPagingItems()
 
@@ -93,9 +115,24 @@ private fun SymptomsScreenContent(
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
-        ){
+        ) {
 
+            if (deletionDialogState.showConfirmationDialog) {
+                DeletionConfirmationDialog(
+                    name = deletionDialogState.symptom?.name.toString(),
+                    onDismiss = dismissDeletionConfirmDialog,
+                    onDeleteConfirmed = deleteWithEntries,
+                )
+            }
 
+            if (deletionDialogState.showDialog) {
+                SymptomDeletionDialog(
+                    onDismiss = dismissDeletionDialog,
+                    onConfirm = onConfirmDeletion,
+                    onDeleteWithDiaryEntries = openDeletionConfirmationDialog,
+                    dialogState = deletionDialogState,
+                )
+            }
 
             AppDefaultSearchBar(
                 searchBarActive = true,
@@ -110,12 +147,57 @@ private fun SymptomsScreenContent(
                         items(lazyPagingItems.itemCount) { index ->
                             val symptom = lazyPagingItems[index]
                             symptom?.let {
-                                Row(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onSymptomSelected(symptom) }
-                                    .padding(14.dp)
-                                ) {
-                                    Text(text = symptom.name)
+
+                                val dismissState = rememberSwipeToDismissBoxState()
+
+                                LaunchedEffect(deletionDialogState.showDialog) {
+                                    if (deletionDialogState.showDialog) {
+                                        dismissState.reset()
+                                    }
+                                }
+
+                                LaunchedEffect(dismissState.currentValue) {
+                                    if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                                        openDeletionDialog(symptom)
+                                    }
+                                }
+
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    enableDismissFromStartToEnd = false,
+                                    enableDismissFromEndToStart = true,
+                                    backgroundContent = {
+                                        val colorState = animateColorAsState(
+                                            when (dismissState.targetValue) {
+                                                SwipeToDismissBoxValue.Settled -> Color.Gray
+                                                SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                                                SwipeToDismissBoxValue.EndToStart -> Color.Red
+                                            },
+                                            label = "Color Animation"
+                                        )
+                                        Box(
+                                            Modifier
+                                                .fillMaxSize()
+                                                .background(colorState.value)
+                                        ) {
+                                            // Show the delete icon when swiping from end to start
+                                            if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = "Delete",
+                                                    modifier = Modifier
+                                                        .size(28.dp)
+                                                        .padding(end = 5.dp)
+                                                        .align(Alignment.CenterEnd),
+                                                    tint = Color.White
+                                                )
+                                            }
+                                        }
+                                    }) {
+                                    ListItem(
+                                        modifier = Modifier.clickable { onSymptomSelected(symptom) },
+                                        headlineContent = { Text(symptom.name) },
+                                    )
                                 }
                             }
                         }
@@ -156,14 +238,21 @@ private fun SymptomsScreenContent(
 @Preview(name = "Symptoms Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(name = "Symptoms Screen Preview Light")
 @Composable
-private fun SymptomsScreenPreview(){
+private fun SymptomsScreenPreview() {
     TriggerTraceTheme {
         SymptomsScreenContent(
             onBack = {},
             onAddSymptom = {},
             state = SymptomsScreenState(),
             onSymptomSelected = {},
-            onSearchQueryUpdated = {}
+            onSearchQueryUpdated = {},
+            openDeletionDialog = {},
+            deletionDialogState = SymptomsDeletionState(),
+            dismissDeletionDialog = {},
+            onConfirmDeletion = {},
+            openDeletionConfirmationDialog = {},
+            dismissDeletionConfirmDialog = {},
+            deleteWithEntries = {}
         )
     }
 }

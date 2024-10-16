@@ -56,4 +56,7 @@
     <string name="delete_symptom_conflicts_msg2">Deleting this symptom will delete all entries.</string>
     <string name="symptom_deletion_msg">Are you sure you want to delete this symptom?</string>
     <string name="type_delete_confirm_msg">Type \'delete\' to confirm</string>
+    <string name="edit_food_title">Edit Food</string>
+    <string name="includes_this_food">Includes this food.</string>
+    <string name="disabled">disabled</string>
 </resources>

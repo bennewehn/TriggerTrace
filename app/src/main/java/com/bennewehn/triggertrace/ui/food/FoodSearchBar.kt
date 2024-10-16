@@ -1,4 +1,4 @@
-package com.bennewehn.triggertrace.ui.components
+package com.bennewehn.triggertrace.ui.food
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,14 +29,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
+import com.bennewehn.triggertrace.ui.components.AppDefaultSearchBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
+import kotlin.Long
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +48,7 @@ fun FoodSearchBar(
     modifier: Modifier = Modifier,
     onFoodSelected: (Food) -> Unit,
     leadingIcon: ImageVector = Icons.Default.Search,
+    excludeFoodIds: List<Long> = emptyList(),
     placeHolder: String = "Search",
     enableSwipeToDelete: Boolean = false,
     colors: SearchBarColors = SearchBarDefaults.colors(),
@@ -53,6 +59,8 @@ fun FoodSearchBar(
     val deletionDialogState = viewModel?.deletionDialogState?.collectAsStateWithLifecycle()?.value
         ?: FoodDeletionDialogState()
 
+    val editState = viewModel?.editFoodState?.collectAsStateWithLifecycle()?.value ?: EditFoodDialogState()
+
     MyFoodSearchBar(
         modifier = modifier,
         updateSearchQuery = { query -> viewModel?.updateSearchQuery(query) },
@@ -62,9 +70,13 @@ fun FoodSearchBar(
         onFoodSelected = onFoodSelected,
         foodSearchBarState = uiState,
         deletionDialogState = deletionDialogState,
+        excludeFoodIds = excludeFoodIds,
         searchBarActiveChanged = { active -> viewModel?.updateSearchBarActive(active) },
         deleteFood = { food -> viewModel?.openDeletionDialog(food) },
-        enableSwipeToDelete = enableSwipeToDelete
+        enableSwipeToDelete = enableSwipeToDelete,
+        editState = editState,
+        editFood = { food -> viewModel?.editFood(food) },
+        dismissEditScreen = { viewModel?.dismissEditDialog() }
     )
 
 }
@@ -79,9 +91,13 @@ private fun MyFoodSearchBar(
     updateSearchQuery: (String) -> Unit,
     onFoodSelected: (Food) -> Unit,
     deleteFood: (Food) -> Unit,
+    editFood: (Food) -> Unit,
     enableSwipeToDelete: Boolean,
     searchBarActiveChanged: (Boolean) -> Unit,
+    excludeFoodIds: List<Long> = emptyList(),
+    dismissEditScreen: () -> Unit,
     foodSearchBarState: FoodSearchBarState,
+    editState: EditFoodDialogState,
     deletionDialogState: FoodDeletionDialogState
 ) {
 
@@ -113,21 +129,27 @@ private fun MyFoodSearchBar(
                         }
 
                         LaunchedEffect(dismissState.currentValue) {
-                            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                                deleteFood(food)
+                            when (dismissState.currentValue) {
+                                SwipeToDismissBoxValue.EndToStart -> deleteFood(food)
+                                SwipeToDismissBoxValue.StartToEnd -> {
+                                    if (!editState.showEditScreen) {
+                                        editFood(food)
+                                    }
+                                }
+                                SwipeToDismissBoxValue.Settled -> {}
                             }
                         }
 
-                        if (enableSwipeToDelete) {
+                        // disable swiping functions for item int list
+                        if (it.id !in excludeFoodIds) {
                             SwipeToDismissBox(
+                                gesturesEnabled = enableSwipeToDelete,
                                 state = dismissState,
-                                enableDismissFromStartToEnd = false,
-                                enableDismissFromEndToStart = true,
                                 backgroundContent = {
                                     val colorState = animateColorAsState(
                                         when (dismissState.targetValue) {
                                             SwipeToDismissBoxValue.Settled -> Color.Gray
-                                            SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                                            SwipeToDismissBoxValue.StartToEnd -> Color.DarkGray
                                             SwipeToDismissBoxValue.EndToStart -> Color.Red
                                         },
                                         label = "Color Animation"
@@ -148,6 +170,16 @@ private fun MyFoodSearchBar(
                                                     .align(Alignment.CenterEnd),
                                                 tint = Color.White
                                             )
+                                        } else if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = "Edit",
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .padding(start = 10.dp)
+                                                    .align(Alignment.CenterStart),
+                                                tint = Color.White
+                                            )
                                         }
                                     }
                                 }) {
@@ -158,11 +190,21 @@ private fun MyFoodSearchBar(
                             }
                         } else {
                             ListItem(
-                                modifier = Modifier.clickable { onFoodSelected(food) },
-                                headlineContent = { Text(food.name) },
+                                headlineContent = {
+                                    Text(
+                                        food.name + " (" + stringResource(R.string.disabled) + ")",
+                                        color = Color.Gray
+                                    )
+                                },
+                                supportingContent = {
+                                    Text(
+                                        stringResource(R.string.includes_this_food),
+                                        color = Color.Gray
+                                    )
+                                },
                             )
-
                         }
+
                     }
                 }
                 when (lazyPagingItems.loadState.refresh) {
@@ -199,7 +241,7 @@ private fun FoodSearchBarPreview() {
     TriggerTraceTheme {
         FoodSearchBar(
             onFoodSelected = {},
-            viewModel = null
+            viewModel = null,
         )
     }
 }

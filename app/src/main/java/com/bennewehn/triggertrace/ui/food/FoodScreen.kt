@@ -46,9 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
-import com.bennewehn.triggertrace.ui.components.FoodDeletionDialogState
-import com.bennewehn.triggertrace.ui.components.FoodSearchBar
-import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
@@ -58,11 +55,25 @@ fun FoodScreen(
     onBack: () -> Unit,
     onAddFood: () -> Unit,
     onAddSelectedFoodsClicked: (List<Food>) -> Unit,
+    onNavigateEditScreen: (Food, List<Long>, List<Food>) -> Unit,
     viewModel: FoodViewModel = hiltViewModel(),
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val deleteDialogState by viewModel.foodSearchBarViewModel.deletionDialogState.collectAsStateWithLifecycle()
+    val editFoodDialogState by viewModel.foodSearchBarViewModel.editFoodState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(editFoodDialogState.showEditScreen) {
+        if (editFoodDialogState.showEditScreen) {
+            editFoodDialogState.food?.let {
+                onNavigateEditScreen(
+                    it,
+                    editFoodDialogState.parentIds,
+                    editFoodDialogState.children
+                )
+            }
+        }
+    }
 
     FoodScreenContent(
         modifier = modifier,

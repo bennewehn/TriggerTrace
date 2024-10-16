@@ -1,12 +1,14 @@
 package com.bennewehn.triggertrace.ui.food
 
-import android.database.sqlite.SQLiteConstraintException
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.data.FoodEntryRepository
+import com.bennewehn.triggertrace.data.FoodInclusion
 import com.bennewehn.triggertrace.data.FoodRepository
+import com.bennewehn.triggertrace.ui.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,25 +17,37 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class AddFoodUIState(
+data class EditFoodUIState(
     val name: String = "",
     val userMessage: Int? = null,
     val selectedFoods: Set<Food> = emptySet(),
-    val foodAddedSuccessfully: Boolean = false
+    val foodUpdatedSuccessfully: Boolean = false,
+    val parentIds: List<Long> = emptyList()
 )
 
 @HiltViewModel
-class AddFoodViewModel @Inject constructor(
+class EditFoodViewModel @Inject constructor(
     foodEntryRepository: FoodEntryRepository,
     private val foodRepository: FoodRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AddFoodUIState())
-    val uiState: StateFlow<AddFoodUIState> = _uiState.asStateFlow()
+    val food = Screen.EditFoodScreen.from(savedStateHandle).food
+    val parents = Screen.EditFoodScreen.from(savedStateHandle).parentIds
+    val children = Screen.EditFoodScreen.from(savedStateHandle).children
+
+    private val _uiState = MutableStateFlow(
+        EditFoodUIState(
+            name = food.name,
+            selectedFoods = children.toSet(),
+            parentIds = parents
+        )
+    )
+    val uiState: StateFlow<EditFoodUIState> = _uiState.asStateFlow()
 
     val foodSearchBarViewModel = FoodSearchBarViewModel(foodEntryRepository, foodRepository)
 
-    fun addFood() {
+    fun editFood() {
         // Check if name is empty
         if (uiState.value.name.isEmpty()) {
             _uiState.update {
@@ -41,22 +55,27 @@ class AddFoodViewModel @Inject constructor(
             }
             return
         }
-        // Add Food to db
+        // update db
         viewModelScope.launch {
-            try {
-                val food = Food(name = uiState.value.name)
-                foodRepository.insertFoodAndInclusions(food, uiState.value.selectedFoods)
-                _uiState.update {
-                    it.copy(foodAddedSuccessfully = true)
-                }
-            } catch (_: SQLiteConstraintException) {
-                _uiState.update {
-                    it.copy(userMessage = R.string.name_already_used_message)
-                }
-            } catch (_: Exception) {
-                _uiState.update {
-                    it.copy(userMessage = R.string.error_message_adding_food)
-                }
+            // update food
+            val updatedFood = food.copy(name = _uiState.value.name)
+            foodRepository.updateFood(updatedFood)
+
+            // update inclusions
+            // 1. remove old inclusions
+            foodRepository.deleteInclusions(food.id)
+            // 2. insert new inclusions
+            _uiState.value.selectedFoods.forEach { e ->
+                foodRepository.insertFoodInclusion(
+                    FoodInclusion(
+                        foodId = food.id,
+                        includedFoodId = e.id
+                    )
+                )
+            }
+
+            _uiState.update {
+                it.copy(foodUpdatedSuccessfully = true)
             }
         }
     }

@@ -18,12 +18,12 @@ data class Food(
     @ColumnInfo(name="name") val name: String,
 )
 
-data class FoodWithComposedFoods(
+data class FoodWithInclusions(
     @Embedded val food: Food,
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(FoodComposition::class, parentColumn = "foodId", entityColumn = "composedFoodId")
+        associateBy = Junction(FoodInclusion::class, parentColumn = "foodId", entityColumn = "includedFoodId")
     )
-    val composedFoods: List<Food>
+    val includedFoods: List<Food>
 )

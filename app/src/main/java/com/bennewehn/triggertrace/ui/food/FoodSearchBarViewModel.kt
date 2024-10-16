@@ -1,4 +1,4 @@
-package com.bennewehn.triggertrace.ui.components
+package com.bennewehn.triggertrace.ui.food
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,6 +36,13 @@ data class FoodDeletionDialogState(
     val food: Food? = null
 )
 
+data class EditFoodDialogState(
+    val showEditScreen: Boolean = false,
+    val food: Food? = null,
+    val parentIds: List<Long> = emptyList(),
+    val children: List<Food> = emptyList()
+)
+
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class FoodSearchBarViewModel(
     private val foodEntryRepository: FoodEntryRepository,
@@ -47,6 +54,9 @@ class FoodSearchBarViewModel(
 
     private val _deletionDialogState = MutableStateFlow(FoodDeletionDialogState())
     val deletionDialogState: StateFlow<FoodDeletionDialogState> = _deletionDialogState.asStateFlow()
+
+    private val _editFoodState = MutableStateFlow(EditFoodDialogState())
+    val editFoodState: StateFlow<EditFoodDialogState> = _editFoodState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -125,6 +135,14 @@ class FoodSearchBarViewModel(
         }
     }
 
+    fun dismissEditDialog(){
+        _editFoodState.update {
+            it.copy(
+                showEditScreen = false,
+            )
+        }
+    }
+
     fun dismissDeletionConfirmationDialog() {
         _deletionDialogState.update {
             it.copy(
@@ -136,6 +154,39 @@ class FoodSearchBarViewModel(
     fun deleteFood(food: Food) {
         viewModelScope.launch {
             foodRepository.deleteFood(food)
+        }
+    }
+
+    fun editFood(food: Food){
+        // get all sub-inclusions
+        viewModelScope.launch{
+            // get all parents
+            val allParents = mutableListOf<Long>()
+            getAllParents(food.id, allParents)
+
+            val childrenIds = foodRepository.getInclusions(food.id)
+            val children = foodRepository.getFoodsByIds(childrenIds)
+
+            _editFoodState.update {
+                it.copy(
+                    showEditScreen = true,
+                    food = food,
+                    parentIds = allParents,
+                    children = children
+                )
+            }
+        }
+    }
+
+    private suspend fun getAllParents(foodId: Long, result: MutableList<Long>) {
+        val parents = foodRepository.getParents(foodId)
+
+        for (parent in parents) {
+            if (!result.contains(parent)) {
+                result.add(parent)
+                // Recursively get all parents of the current food
+                getAllParents(parent, result)
+            }
         }
     }
 

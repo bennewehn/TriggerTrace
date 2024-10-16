@@ -10,28 +10,58 @@ import com.bennewehn.triggertrace.data.Symptom
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.collections.mapOf
 import kotlin.reflect.typeOf
 
 @Serializable
-sealed class Screen{
+sealed class Screen {
     @Serializable
     data object HomeScreen : Screen()
+
     @Serializable
     data object FoodScreen : Screen()
+
     @Serializable
-    data object SymptomsScreen: Screen()
+    data object SymptomsScreen : Screen()
+
     @Serializable
-    data object AddSymptomScreen: Screen()
+    data object AddSymptomScreen : Screen()
+
     @Serializable
-    data object SettingsScreen: Screen()
+    data object SettingsScreen : Screen()
+
     @Serializable
-    data object AddFoodScreen: Screen()
+    data object AddFoodScreen : Screen()
+
     @Serializable
-    data object InfoScreen: Screen()
+    data object InfoScreen : Screen()
+
     @Serializable
-    data object DiaryScreen: Screen()
+    data object DiaryScreen : Screen()
+
     @Serializable
-    data class OneToTenRatingScreen(val symptom: Symptom): Screen(){
+    data class EditFoodScreen(
+        val food: Food,
+        val parentIds: List<Long>,
+        val children: List<Food>
+    ) : Screen() {
+        companion object {
+            val typeMap = mapOf(
+                typeOf<Food>() to serializableType<Food>(),
+                typeOf<List<Long>>() to serializableType<List<Long>>(),
+                typeOf<List<Food>>() to serializableType<List<Food>>()
+            )
+
+            fun from(savedStateHandle: SavedStateHandle) =
+                savedStateHandle.toRoute<EditFoodScreen>(typeMap)
+
+            fun from(backStackEntry: NavBackStackEntry) =
+                backStackEntry.toRoute<EditFoodScreen>()
+        }
+    }
+
+    @Serializable
+    data class OneToTenRatingScreen(val symptom: Symptom) : Screen() {
         companion object {
             val typeMap = mapOf(typeOf<Symptom>() to serializableType<Symptom>())
 
@@ -42,8 +72,9 @@ sealed class Screen{
                 backStackEntry.toRoute<OneToTenRatingScreen>()
         }
     }
+
     @Serializable
-    data class BinaryRatingScreen(val symptom: Symptom): Screen(){
+    data class BinaryRatingScreen(val symptom: Symptom) : Screen() {
         companion object {
             val typeMap = mapOf(typeOf<Symptom>() to serializableType<Symptom>())
 
@@ -54,8 +85,9 @@ sealed class Screen{
                 backStackEntry.toRoute<BinaryRatingScreen>()
         }
     }
+
     @Serializable
-    data class CategoricalRatingScreen(val symptom: Symptom): Screen(){
+    data class CategoricalRatingScreen(val symptom: Symptom) : Screen() {
         companion object {
             val typeMap = mapOf(typeOf<Symptom>() to serializableType<Symptom>())
 
@@ -66,8 +98,9 @@ sealed class Screen{
                 backStackEntry.toRoute<CategoricalRatingScreen>()
         }
     }
+
     @Serializable
-    data class SaveSymptomEntryScreen(val symptom: Symptom, val value: Int): Screen(){
+    data class SaveSymptomEntryScreen(val symptom: Symptom, val value: Int) : Screen() {
         companion object {
             val typeMap = mapOf(
                 typeOf<Symptom>() to serializableType<Symptom>(),
@@ -80,8 +113,9 @@ sealed class Screen{
                 backStackEntry.toRoute<SaveSymptomEntryScreen>()
         }
     }
+
     @Serializable
-    data class SaveFoodEntryScreen(val foods: List<Food>): Screen(){
+    data class SaveFoodEntryScreen(val foods: List<Food>) : Screen() {
         companion object {
             val typeMap = mapOf(
                 typeOf<List<Food>>() to serializableType<List<Food>>(),

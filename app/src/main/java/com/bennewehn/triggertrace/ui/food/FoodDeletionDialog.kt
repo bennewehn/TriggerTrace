@@ -16,8 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.R
-import com.bennewehn.triggertrace.ui.components.FoodDeletionDialogState
-import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable

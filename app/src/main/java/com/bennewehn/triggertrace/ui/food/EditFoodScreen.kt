@@ -42,29 +42,28 @@ import com.bennewehn.triggertrace.ui.components.NameInputField
 import com.bennewehn.triggertrace.ui.components.NavigateBackTopAppBar
 import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
-
 @Composable
-fun AddFoodScreen(
+fun EditFoodScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    viewModel: AddFoodViewModel = hiltViewModel(),
+    viewModel: EditFoodViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.foodAddedSuccessfully) {
-        if (uiState.foodAddedSuccessfully) {
+    LaunchedEffect(uiState.foodUpdatedSuccessfully) {
+        if (uiState.foodUpdatedSuccessfully) {
             onBack()
         }
     }
 
-    AddFoodScreenContent(
+    Content(
         modifier = modifier,
         onBack = onBack,
         snackbarMessageShown = viewModel::snackbarMessageShown,
         updateName = viewModel::updateName,
         selectFood = viewModel::selectFood,
         deselectFood = viewModel::deselectFood,
-        onAddFood = viewModel::addFood,
+        onEditFood = viewModel::editFood,
         uiState = uiState,
         foodSearchBarViewModel = viewModel.foodSearchBarViewModel
     )
@@ -73,15 +72,15 @@ fun AddFoodScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun AddFoodScreenContent(
+private fun Content(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    onAddFood: () -> Unit,
+    onEditFood: () -> Unit,
     snackbarMessageShown: () -> Unit,
     updateName: (String) -> Unit,
     selectFood: (Food) -> Unit,
     deselectFood: (Food) -> Unit,
-    uiState: AddFoodUIState,
+    uiState: EditFoodUIState,
     foodSearchBarViewModel: FoodSearchBarViewModel? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,8 +90,8 @@ private fun AddFoodScreenContent(
         topBar = {
             NavigateBackTopAppBar(
                 onBack = onBack,
-                title = stringResource(id = R.string.add_food_screen_title),
-            ) 
+                title = stringResource(id = R.string.edit_food_title),
+            )
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -127,6 +126,7 @@ private fun AddFoodScreenContent(
                     colors = SearchBarDefaults.colors(
                         containerColor = Color.Transparent
                     ),
+                    excludeFoodIds = uiState.parentIds,
                     viewModel = foodSearchBarViewModel,
                 )
 
@@ -155,7 +155,7 @@ private fun AddFoodScreenContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(30.dp),
-                onClick = onAddFood,
+                onClick = onEditFood,
             ) {
                 Icon(imageVector = Icons.Filled.Check, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -166,19 +166,19 @@ private fun AddFoodScreenContent(
     }
 }
 
-@Preview(name = "Add Food Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "Add Food Screen Preview Light")
+@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Light")
 @Composable
 private fun FoodScreenPreview() {
     TriggerTraceTheme {
-        AddFoodScreenContent(
+        Content(
             onBack = {},
-            onAddFood = {},
+            onEditFood = {},
             updateName = {},
             deselectFood = {},
             selectFood = {},
             snackbarMessageShown = {},
-            uiState = AddFoodUIState(
+            uiState = EditFoodUIState(
                 selectedFoods = setOf(
                     Food(name = "Wheat"),
                     Food(name = "Banana"),
@@ -191,21 +191,21 @@ private fun FoodScreenPreview() {
 }
 
 @Preview(
-    name = "Add Food Screen Preview Search Bar Active Dark",
+    name = "Dark",
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
-@Preview(name = "Add Food Screen Preview Search Bar Active Light")
+@Preview(name = "Light")
 @Composable
 private fun FoodScreenSearchBarActivePreview() {
     TriggerTraceTheme {
-        AddFoodScreenContent(
+        Content(
             onBack = {},
-            onAddFood = {},
+            onEditFood = {},
             updateName = {},
             deselectFood = {},
             selectFood = {},
             snackbarMessageShown = {},
-            uiState = AddFoodUIState(
+            uiState = EditFoodUIState(
             ),
         )
     }

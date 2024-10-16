@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bennewehn.triggertrace.ui.components.DeletionConfirmationDialog
-import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 
 @Composable
 fun FoodDeletionConfirmationDialog(

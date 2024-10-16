@@ -7,7 +7,6 @@ import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Food
 import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
-import com.bennewehn.triggertrace.ui.components.FoodSearchBarViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow

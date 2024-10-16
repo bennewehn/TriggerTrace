@@ -11,7 +11,7 @@ import java.io.IOException
 
 @Database(entities = [
     Food::class,
-    FoodComposition::class,
+    FoodInclusion::class,
     FoodEntry::class,
     Symptom::class,
     SymptomEntry::class], version = 1)

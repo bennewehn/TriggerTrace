@@ -27,7 +27,8 @@ import javax.inject.Inject
 
 data class SymptomsScreenState(
     val searchQuery: String = "",
-    val symptomPagedData: Flow<PagingData<Symptom>>? = null
+    val symptomPagedData: Flow<PagingData<Symptom>>? = null,
+    val showEditScreen: Boolean = false
 )
 
 data class SymptomsDeletionState(

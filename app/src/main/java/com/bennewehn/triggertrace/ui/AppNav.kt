@@ -56,7 +56,9 @@ fun AppNav(
                     }
                 },
                 onNavigateEditScreen = { food, parentIds, children ->
-                    navController.navigate(Screen.EditFoodScreen(food, parentIds, children))
+                    navController.navigate(Screen.EditFoodScreen(food, parentIds, children)){
+                        launchSingleTop = true
+                    }
                 }
             )
         }

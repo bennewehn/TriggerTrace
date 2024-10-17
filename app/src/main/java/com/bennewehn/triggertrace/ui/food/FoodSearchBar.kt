@@ -48,7 +48,8 @@ fun FoodSearchBar(
     modifier: Modifier = Modifier,
     onFoodSelected: (Food) -> Unit,
     leadingIcon: ImageVector = Icons.Default.Search,
-    excludeFoodIds: List<Long> = emptyList(),
+    disableFoodIds: List<Long> = emptyList(),
+    hideFoodIds: List<Long> = emptyList(),
     placeHolder: String = "Search",
     enableSwipeToDelete: Boolean = false,
     colors: SearchBarColors = SearchBarDefaults.colors(),
@@ -56,10 +57,6 @@ fun FoodSearchBar(
 ) {
 
     val uiState = viewModel?.uiState?.collectAsStateWithLifecycle()?.value ?: FoodSearchBarState()
-    val deletionDialogState = viewModel?.deletionDialogState?.collectAsStateWithLifecycle()?.value
-        ?: FoodDeletionDialogState()
-
-    val editState = viewModel?.editFoodState?.collectAsStateWithLifecycle()?.value ?: EditFoodDialogState()
 
     MyFoodSearchBar(
         modifier = modifier,
@@ -69,14 +66,12 @@ fun FoodSearchBar(
         colors = colors,
         onFoodSelected = onFoodSelected,
         foodSearchBarState = uiState,
-        deletionDialogState = deletionDialogState,
-        excludeFoodIds = excludeFoodIds,
+        disableFoodIds = disableFoodIds,
+        hideFoodIds = hideFoodIds,
         searchBarActiveChanged = { active -> viewModel?.updateSearchBarActive(active) },
         deleteFood = { food -> viewModel?.openDeletionDialog(food) },
         enableSwipeToDelete = enableSwipeToDelete,
-        editState = editState,
         editFood = { food -> viewModel?.editFood(food) },
-        dismissEditScreen = { viewModel?.dismissEditDialog() }
     )
 
 }
@@ -94,11 +89,9 @@ private fun MyFoodSearchBar(
     editFood: (Food) -> Unit,
     enableSwipeToDelete: Boolean,
     searchBarActiveChanged: (Boolean) -> Unit,
-    excludeFoodIds: List<Long> = emptyList(),
-    dismissEditScreen: () -> Unit,
+    disableFoodIds: List<Long> = emptyList(),
+    hideFoodIds: List<Long> = emptyList(),
     foodSearchBarState: FoodSearchBarState,
-    editState: EditFoodDialogState,
-    deletionDialogState: FoodDeletionDialogState
 ) {
 
     val foodPagedData: LazyPagingItems<Food>? =
@@ -122,26 +115,21 @@ private fun MyFoodSearchBar(
 
                         val dismissState = rememberSwipeToDismissBoxState()
 
-                        LaunchedEffect(deletionDialogState.showDialog) {
-                            if (deletionDialogState.showDialog) {
+                        LaunchedEffect(dismissState.currentValue) {
+                            when (dismissState.currentValue) {
+                                SwipeToDismissBoxValue.EndToStart -> deleteFood(food)
+                                SwipeToDismissBoxValue.StartToEnd -> editFood(food)
+                                SwipeToDismissBoxValue.Settled -> {}
+                            }
+                            if(dismissState.currentValue != SwipeToDismissBoxValue.Settled){
                                 dismissState.reset()
                             }
                         }
 
-                        LaunchedEffect(dismissState.currentValue) {
-                            when (dismissState.currentValue) {
-                                SwipeToDismissBoxValue.EndToStart -> deleteFood(food)
-                                SwipeToDismissBoxValue.StartToEnd -> {
-                                    if (!editState.showEditScreen) {
-                                        editFood(food)
-                                    }
-                                }
-                                SwipeToDismissBoxValue.Settled -> {}
-                            }
-                        }
+                        if (it.id in hideFoodIds) return@items
 
                         // disable swiping functions for item int list
-                        if (it.id !in excludeFoodIds) {
+                        if (it.id !in disableFoodIds) {
                             SwipeToDismissBox(
                                 gesturesEnabled = enableSwipeToDelete,
                                 state = dismissState,

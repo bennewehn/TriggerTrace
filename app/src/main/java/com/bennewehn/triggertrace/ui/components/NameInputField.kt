@@ -24,13 +24,14 @@ import com.bennewehn.triggertrace.R
 fun NameInputField(
     name: String,
     onNameChanged: (String) -> Unit,
+    shouldFocus: Boolean = true
 ){
 
     val focusRequester = remember { FocusRequester() }
     var hasFocused by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(hasFocused) {
-        if (!hasFocused) {
+        if (!hasFocused && shouldFocus) {
             focusRequester.requestFocus()
             hasFocused = true
         }

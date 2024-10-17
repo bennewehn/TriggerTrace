@@ -117,7 +117,11 @@ private fun Content(
                 .fillMaxSize()
         ) {
             Column {
-                NameInputField(name = uiState.name, onNameChanged = updateName)
+                NameInputField(
+                    name = uiState.name,
+                    onNameChanged = updateName,
+                    shouldFocus = false
+                )
 
                 FoodSearchBar(
                     leadingIcon = Icons.Filled.Add,
@@ -126,7 +130,8 @@ private fun Content(
                     colors = SearchBarDefaults.colors(
                         containerColor = Color.Transparent
                     ),
-                    excludeFoodIds = uiState.parentIds,
+                    disableFoodIds = uiState.parentIds,
+                    hideFoodIds = listOf(uiState.food.id),
                     viewModel = foodSearchBarViewModel,
                 )
 

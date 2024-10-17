@@ -19,6 +19,7 @@ import javax.inject.Inject
 
 data class EditFoodUIState(
     val name: String = "",
+    val food: Food = Food(name = ""),
     val userMessage: Int? = null,
     val selectedFoods: Set<Food> = emptySet(),
     val foodUpdatedSuccessfully: Boolean = false,
@@ -39,6 +40,7 @@ class EditFoodViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         EditFoodUIState(
             name = food.name,
+            food = food,
             selectedFoods = children.toSet(),
             parentIds = parents
         )

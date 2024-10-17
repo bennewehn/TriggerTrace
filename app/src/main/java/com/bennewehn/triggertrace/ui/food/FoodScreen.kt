@@ -72,6 +72,7 @@ fun FoodScreen(
                     editFoodDialogState.children
                 )
             }
+            viewModel.foodSearchBarViewModel.dismissEditDialog()
         }
     }
 

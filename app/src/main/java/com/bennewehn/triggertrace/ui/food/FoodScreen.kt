@@ -73,6 +73,7 @@ fun FoodScreen(
                 )
             }
             viewModel.foodSearchBarViewModel.dismissEditDialog()
+            viewModel.clearSelectedFoods()
         }
     }
 
@@ -87,6 +88,7 @@ fun FoodScreen(
         onFoodDeleted = viewModel::onFoodDeleted,
         showNextMessage = viewModel::showNextMessage,
         undoDeletion = viewModel::undoDeletion,
+        onClearSelectedFoods = viewModel::clearSelectedFoods,
         onAddSelectedFoodsClicked = onAddSelectedFoodsClicked,
     )
 }
@@ -100,6 +102,7 @@ private fun FoodScreenContent(
     onAddSelectedFoodsClicked: (List<Food>) -> Unit = {},
     onFoodSelected: (Food) -> Unit = {},
     onFoodDeleted: (Food) -> Unit = {},
+    onClearSelectedFoods: () -> Unit = {},
     foodSearchBarViewModel: FoodSearchBarViewModel?,
     deleteDialogState: FoodDeletionDialogState,
     showNextMessage: () -> Unit = {},
@@ -148,14 +151,18 @@ private fun FoodScreenContent(
         if (deleteDialogState.showDialog) {
             foodSearchBarViewModel?.let {
                 FoodDeletionDialog(
-                    foodSearchBarViewModel = it
+                    foodSearchBarViewModel = it,
+                    onItemDeleted = onClearSelectedFoods
                 )
             }
         }
 
         if (deleteDialogState.showConfirmationDialog) {
             foodSearchBarViewModel?.let {
-                FoodDeletionConfirmationDialog(foodSearchBarViewModel = it)
+                FoodDeletionConfirmationDialog(
+                    foodSearchBarViewModel = it,
+                    onItemDeleted = onClearSelectedFoods
+                )
             }
         }
 

@@ -20,14 +20,18 @@ import com.bennewehn.triggertrace.ui.theme.TriggerTraceTheme
 
 @Composable
 fun FoodDeletionDialog(
-    foodSearchBarViewModel: FoodSearchBarViewModel
+    foodSearchBarViewModel: FoodSearchBarViewModel,
+    onItemDeleted: () -> Unit = {}
 ) {
 
     val deleteDialogState by foodSearchBarViewModel.deletionDialogState.collectAsStateWithLifecycle()
 
     FoodDeletionDialogContent(
         onDismiss = foodSearchBarViewModel::dismissDeletionDialog,
-        onConfirm = { deleteDialogState.food?.let { foodSearchBarViewModel.deleteFood(it) } },
+        onConfirm = {
+            deleteDialogState.food?.let { foodSearchBarViewModel.deleteFood(it) }
+            onItemDeleted()
+        },
         onDeleteWithDiaryEntries = {
             // open confirmation dialog
             foodSearchBarViewModel.openDeletionConfirmationDialog()

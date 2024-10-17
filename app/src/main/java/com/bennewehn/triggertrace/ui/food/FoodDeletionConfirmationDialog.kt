@@ -7,7 +7,8 @@ import com.bennewehn.triggertrace.ui.components.DeletionConfirmationDialog
 
 @Composable
 fun FoodDeletionConfirmationDialog(
-    foodSearchBarViewModel: FoodSearchBarViewModel
+    foodSearchBarViewModel: FoodSearchBarViewModel,
+    onItemDeleted: () -> Unit = {}
 ) {
 
     val deleteDialogState by foodSearchBarViewModel.deletionDialogState.collectAsStateWithLifecycle()
@@ -15,7 +16,10 @@ fun FoodDeletionConfirmationDialog(
     DeletionConfirmationDialog(
         name = deleteDialogState.food?.name.toString(),
         onDismiss = foodSearchBarViewModel::dismissDeletionConfirmationDialog,
-        onDeleteConfirmed = { deleteDialogState.food?.let { foodSearchBarViewModel.deleteFoodWithDiaryEntries(it) } },
+        onDeleteConfirmed = {
+            deleteDialogState.food?.let { foodSearchBarViewModel.deleteFoodWithDiaryEntries(it) }
+            onItemDeleted()
+        },
     )
 
 }

@@ -87,4 +87,12 @@ class FoodViewModel @Inject constructor(
         addFood(food)
     }
 
+    fun clearSelectedFoods(){
+        _uiState.update {
+            it.copy(
+                selectedFoods = emptyList()
+            )
+        }
+    }
+
 }

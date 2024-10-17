@@ -1,5 +1,6 @@
 package com.bennewehn.triggertrace.ui.food
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -61,24 +62,33 @@ class EditFoodViewModel @Inject constructor(
         viewModelScope.launch {
             // update food
             val updatedFood = food.copy(name = _uiState.value.name)
-            foodRepository.updateFood(updatedFood)
+            try{
+                foodRepository.updateFood(updatedFood)
 
-            // update inclusions
-            // 1. remove old inclusions
-            foodRepository.deleteInclusions(food.id)
-            // 2. insert new inclusions
-            _uiState.value.selectedFoods.forEach { e ->
-                foodRepository.insertFoodInclusion(
-                    FoodInclusion(
-                        foodId = food.id,
-                        includedFoodId = e.id
+                // update inclusions
+                // 1. remove old inclusions
+                foodRepository.deleteInclusions(food.id)
+                // 2. insert new inclusions
+                _uiState.value.selectedFoods.forEach { e ->
+                    foodRepository.insertFoodInclusion(
+                        FoodInclusion(
+                            foodId = food.id,
+                            includedFoodId = e.id
+                        )
                     )
-                )
+                }
+
+                _uiState.update {
+                    it.copy(foodUpdatedSuccessfully = true)
+                }
+            }
+            catch (_: SQLiteConstraintException) {
+                _uiState.update {
+                    it.copy(userMessage = R.string.name_already_used_message)
+                }
             }
 
-            _uiState.update {
-                it.copy(foodUpdatedSuccessfully = true)
-            }
+
         }
     }
 

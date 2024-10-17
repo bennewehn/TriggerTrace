@@ -19,6 +19,7 @@ import com.bennewehn.triggertrace.ui.symptoms.AddSymptomScreen
 import com.bennewehn.triggertrace.ui.symptoms.OneToTenRatingScreen
 import com.bennewehn.triggertrace.ui.symptoms.BinaryRatingScreen
 import com.bennewehn.triggertrace.ui.symptoms.CategoricalRatingScreen
+import com.bennewehn.triggertrace.ui.symptoms.EditSymptomScreen
 import com.bennewehn.triggertrace.ui.symptoms.SaveSymptomEntryScreen
 import com.bennewehn.triggertrace.ui.symptoms.SymptomsScreen
 
@@ -60,6 +61,13 @@ fun AppNav(
                         launchSingleTop = true
                     }
                 }
+            )
+        }
+        composable<Screen.EditSymptomScreen>(
+            typeMap = Screen.EditSymptomScreen.typeMap
+        ){
+            EditSymptomScreen(
+                onBack = { navController.navigateUp() }
             )
         }
         composable<Screen.SaveFoodEntryScreen>(

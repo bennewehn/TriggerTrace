@@ -59,4 +59,5 @@
     <string name="edit_food_title">Edit Food</string>
     <string name="includes_this_food">Includes this food.</string>
     <string name="disabled">disabled</string>
+    <string name="edit_symptom">Edit symptom</string>
 </resources>

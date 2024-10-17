@@ -61,6 +61,23 @@ sealed class Screen {
     }
 
     @Serializable
+    data class EditSymptomScreen(
+        val symptom: Symptom,
+    ) : Screen() {
+        companion object {
+            val typeMap = mapOf(
+                typeOf<Symptom>() to serializableType<Symptom>(),
+            )
+
+            fun from(savedStateHandle: SavedStateHandle) =
+                savedStateHandle.toRoute<EditSymptomScreen>(typeMap)
+
+            fun from(backStackEntry: NavBackStackEntry) =
+                backStackEntry.toRoute<EditSymptomScreen>()
+        }
+    }
+
+    @Serializable
     data class OneToTenRatingScreen(val symptom: Symptom) : Screen() {
         companion object {
             val typeMap = mapOf(typeOf<Symptom>() to serializableType<Symptom>())

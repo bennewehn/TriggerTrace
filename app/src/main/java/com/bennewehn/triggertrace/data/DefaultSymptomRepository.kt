@@ -22,4 +22,8 @@ class DefaultSymptomRepository(private val symptomDao: SymptomDao) : SymptomRepo
         symptomDao.deleteSymptom(symptom)
     }
 
+    override suspend fun updateSymptom(symptom: Symptom) {
+        symptomDao.updateSymptom(symptom)
+    }
+
 }

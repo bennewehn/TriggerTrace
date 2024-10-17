@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface SymptomDao {
@@ -16,4 +17,7 @@ interface SymptomDao {
 
     @Delete
     suspend fun deleteSymptom(symptom: Symptom)
+
+    @Update
+    suspend fun updateSymptom(symptom: Symptom)
 }

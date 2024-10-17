@@ -56,11 +56,11 @@ class AddSymptomViewModel @Inject constructor(
                     it.copy(symptomAddedSuccessfully = true)
                 }
             }
-            catch (e: SQLiteConstraintException) {
+            catch (_: SQLiteConstraintException) {
                 _uiState.update {
                     it.copy(userMessage = R.string.name_already_used_message)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.update {
                     it.copy(userMessage = R.string.error_message_adding_food)
                 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -76,7 +77,8 @@ fun SymptomsScreen(
         onConfirmDeletion = { deleteDialogState.symptom?.let { viewModel.deleteSymptom(it) } },
         openDeletionConfirmationDialog = viewModel::openDeletionConfirmationDialog,
         dismissDeletionConfirmDialog = viewModel::dismissDeletionConfirmationDialog,
-        deleteWithEntries = { deleteDialogState.symptom?.let { viewModel.deleteSymptomWithEntries(it) } }
+        deleteWithEntries = { deleteDialogState.symptom?.let { viewModel.deleteSymptomWithEntries(it) } },
+        openEditingScreen = { symptom -> navigateScreen(Screen.EditSymptomScreen(symptom)) }
     )
 
 }
@@ -89,6 +91,7 @@ private fun SymptomsScreenContent(
     onSymptomSelected: (Symptom) -> Unit,
     onSearchQueryUpdated: (String) -> Unit,
     openDeletionDialog: (Symptom) -> Unit,
+    openEditingScreen: (Symptom) -> Unit,
     dismissDeletionDialog: () -> Unit,
     dismissDeletionConfirmDialog: () -> Unit,
     onConfirmDeletion: () -> Unit,
@@ -150,27 +153,30 @@ private fun SymptomsScreenContent(
 
                                 val dismissState = rememberSwipeToDismissBoxState()
 
-                                LaunchedEffect(deletionDialogState.showDialog) {
-                                    if (deletionDialogState.showDialog) {
+                                LaunchedEffect(dismissState.currentValue) {
+                                    when (dismissState.currentValue) {
+                                        SwipeToDismissBoxValue.EndToStart -> {
+                                            openDeletionDialog(symptom)
+                                        }
+                                        SwipeToDismissBoxValue.StartToEnd -> {
+                                            openEditingScreen(symptom)
+                                        }
+                                        SwipeToDismissBoxValue.Settled -> {}
+                                    }
+
+                                    if(dismissState.currentValue != SwipeToDismissBoxValue.Settled){
                                         dismissState.reset()
                                     }
-                                }
 
-                                LaunchedEffect(dismissState.currentValue) {
-                                    if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                                        openDeletionDialog(symptom)
-                                    }
                                 }
 
                                 SwipeToDismissBox(
                                     state = dismissState,
-                                    enableDismissFromStartToEnd = false,
-                                    enableDismissFromEndToStart = true,
                                     backgroundContent = {
                                         val colorState = animateColorAsState(
                                             when (dismissState.targetValue) {
                                                 SwipeToDismissBoxValue.Settled -> Color.Gray
-                                                SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                                                SwipeToDismissBoxValue.StartToEnd -> Color.DarkGray
                                                 SwipeToDismissBoxValue.EndToStart -> Color.Red
                                             },
                                             label = "Color Animation"
@@ -189,6 +195,17 @@ private fun SymptomsScreenContent(
                                                         .size(28.dp)
                                                         .padding(end = 5.dp)
                                                         .align(Alignment.CenterEnd),
+                                                    tint = Color.White
+                                                )
+                                            }
+                                            else if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Edit,
+                                                    contentDescription = "Edit",
+                                                    modifier = Modifier
+                                                        .size(40.dp)
+                                                        .padding(start = 10.dp)
+                                                        .align(Alignment.CenterStart),
                                                     tint = Color.White
                                                 )
                                             }
@@ -252,7 +269,8 @@ private fun SymptomsScreenPreview() {
             onConfirmDeletion = {},
             openDeletionConfirmationDialog = {},
             dismissDeletionConfirmDialog = {},
-            deleteWithEntries = {}
+            deleteWithEntries = {},
+            openEditingScreen = {}
         )
     }
 }

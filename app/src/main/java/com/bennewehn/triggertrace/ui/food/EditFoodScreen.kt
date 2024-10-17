@@ -131,7 +131,8 @@ private fun Content(
                         containerColor = Color.Transparent
                     ),
                     disableFoodIds = uiState.parentIds,
-                    hideFoodIds = listOf(uiState.food.id),
+                    // exclude all selected foods and the currently edited food from the search
+                    hideFoodIds = uiState.selectedFoods.map { it.id } + uiState.food.id,
                     viewModel = foodSearchBarViewModel,
                 )
 

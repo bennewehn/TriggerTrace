@@ -10,4 +10,6 @@ interface SymptomEntryRepository {
     suspend fun deleteAllBySymptomId(symptomId: Long)
 
     suspend fun getSymptomEntriesForDay(day: Date): List<SymptomEntry>
+
+    suspend fun deleteSymptomEntry(symptomEntry: SymptomEntry)
 }

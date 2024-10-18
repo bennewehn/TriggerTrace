@@ -1,6 +1,7 @@
 package com.bennewehn.triggertrace.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 
@@ -8,6 +9,9 @@ import androidx.room.Query
 interface FoodEntryDao {
     @Insert
     suspend fun insertFoodEntry(foodEntry: FoodEntry)
+
+    @Delete
+    suspend fun deleteFoodEntry(foodEntry: FoodEntry)
 
     @Query("SELECT COUNT(*) FROM food_entries WHERE foodId = :id")
     suspend fun foodEntryCount(id: Long): Long

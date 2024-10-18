@@ -25,4 +25,8 @@ class DefaultFoodEntryRepository(private val foodEntryDao: FoodEntryDao) : FoodE
         return foodEntryDao.getFoodEntriesForDay(DateUtils.getStartOfDay(day), DateUtils.getEndOfDay(day))
     }
 
+    override suspend fun deleteFoodEntry(foodEntry: FoodEntry) {
+        foodEntryDao.deleteFoodEntry(foodEntry)
+    }
+
 }

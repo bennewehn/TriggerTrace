@@ -1,14 +1,19 @@
 package com.bennewehn.triggertrace.ui.diary
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bennewehn.triggertrace.R
 import com.bennewehn.triggertrace.data.Entry
+import com.bennewehn.triggertrace.data.FoodEntry
 import com.bennewehn.triggertrace.data.FoodEntryRepository
 import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.data.IName
+import com.bennewehn.triggertrace.data.SymptomEntry
 import com.bennewehn.triggertrace.data.SymptomEntryRepository
 import com.bennewehn.triggertrace.data.SymptomRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +26,8 @@ import javax.inject.Inject
 
 data class DiaryUIState(
     val selectedDate: Date = Date(),
-    val listEntries: List<Pair<Entry, IName>> = emptyList()
+    val listEntries: List<Pair<Entry, IName>> = emptyList(),
+    val messageQueue: List<Pair<String, Entry>> = emptyList(),
 )
 
 @HiltViewModel
@@ -29,7 +35,8 @@ class DiaryViewModel @Inject constructor(
     val foodRepository: FoodRepository,
     val symptomRepository: SymptomRepository,
     val foodEntryRepository: FoodEntryRepository,
-    val symptomEntryRepository: SymptomEntryRepository
+    val symptomEntryRepository: SymptomEntryRepository,
+    @ApplicationContext val appContext: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DiaryUIState())
@@ -77,6 +84,37 @@ class DiaryViewModel @Inject constructor(
         fetchEntries()
     }
 
+    fun undoDeletion(entry: Entry) {
+        viewModelScope.launch{
+            when(entry){
+                is FoodEntry -> foodEntryRepository.insertFoodEntry(entry)
+                is SymptomEntry -> symptomEntryRepository.insertSymptomEntry(entry)
+            }
+            fetchEntries()
+        }
+    }
+
+    fun deleteEntry(entry: Entry, name: String){
+        viewModelScope.launch{
+            when(entry){
+                is FoodEntry -> foodEntryRepository.deleteFoodEntry(entry)
+                is SymptomEntry -> symptomEntryRepository.deleteSymptomEntry(entry)
+            }
+            fetchEntries()
+            enqueueMessage(
+                "$name ${appContext.getString(R.string.deleted)}.",
+                entry
+            )
+        }
+    }
+
+
+    private fun enqueueMessage(message: String, entry: Entry) {
+        _uiState.update {
+            it.copy(messageQueue = it.messageQueue + Pair(message, entry))
+        }
+    }
+
     private fun fetchEntries() {
         viewModelScope.launch {
             val foods = foodEntryRepository.getFoodEntriesForDay(_uiState.value.selectedDate)
@@ -94,6 +132,19 @@ class DiaryViewModel @Inject constructor(
                 )
             }
 
+        }
+    }
+
+    fun showNextMessage() {
+        viewModelScope.launch {
+            if (_uiState.value.messageQueue.isNotEmpty()) {
+                // Remove the first message after it's shown
+                _uiState.update {
+                    it.copy(
+                        messageQueue = it.messageQueue.drop(1)
+                    )
+                }
+            }
         }
     }
 

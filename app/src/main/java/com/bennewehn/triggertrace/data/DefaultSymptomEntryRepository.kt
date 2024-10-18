@@ -23,4 +23,8 @@ class DefaultSymptomEntryRepository(private val symptomEntryDao: SymptomEntryDao
             DateUtils.getEndOfDay(day)
         )
     }
+
+    override suspend fun deleteSymptomEntry(symptomEntry: SymptomEntry) {
+        symptomEntryDao.deleteSymptomEntry(symptomEntry)
+    }
 }

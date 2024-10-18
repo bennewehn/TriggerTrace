@@ -12,4 +12,6 @@ interface FoodEntryRepository {
     suspend fun deleteAllByFoodId(foodId: Long)
 
     suspend fun getFoodEntriesForDay(day: Date): List<FoodEntry>
+
+    suspend fun deleteFoodEntry(foodEntry: FoodEntry)
 }

@@ -1,6 +1,7 @@
 package com.bennewehn.triggertrace.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 
@@ -8,6 +9,9 @@ import androidx.room.Query
 interface SymptomEntryDao {
     @Insert
     suspend fun insertSymptomEntry(symptomEntry: SymptomEntry): Long
+
+    @Delete
+    suspend fun deleteSymptomEntry(symptomEntry: SymptomEntry)
 
     @Query("SELECT COUNT(*) FROM symptom_entries WHERE symptomId = :symptomId")
     suspend fun getEntriesCount(symptomId: Long): Long

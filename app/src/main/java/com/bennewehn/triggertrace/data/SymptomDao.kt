@@ -20,4 +20,7 @@ interface SymptomDao {
 
     @Update
     suspend fun updateSymptom(symptom: Symptom)
+
+    @Query("SELECT * from symptom where id = :symptomId")
+    suspend fun getSymptomById(symptomId: Long) : Symptom
 }

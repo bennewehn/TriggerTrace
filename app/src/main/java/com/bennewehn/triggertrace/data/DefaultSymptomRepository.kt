@@ -26,4 +26,9 @@ class DefaultSymptomRepository(private val symptomDao: SymptomDao) : SymptomRepo
         symptomDao.updateSymptom(symptom)
     }
 
+    override suspend fun getSymptomById(symptomId: Long): Symptom {
+        return symptomDao.getSymptomById(symptomId)
+    }
+
+
 }

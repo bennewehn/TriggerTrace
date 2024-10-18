@@ -174,10 +174,10 @@ private fun AddSymptomScreenContent(
     }
 }
 
-@Preview(name = "Add Symptom Screen Preview Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "Add Symptom Screen Preview Light")
+@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Light")
 @Composable
-private fun SettingsScreenPreview() {
+private fun Preview() {
     TriggerTraceTheme {
         AddSymptomScreenContent(
             modifier = Modifier,

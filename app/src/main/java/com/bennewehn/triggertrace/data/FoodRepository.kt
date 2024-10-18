@@ -23,4 +23,6 @@ interface FoodRepository {
     fun searchItems(query: String): Flow<PagingData<Food>>
 
     suspend fun deleteInclusions(foodId: Long)
+
+    suspend fun getFoodById(foodId: Long): Food
 }

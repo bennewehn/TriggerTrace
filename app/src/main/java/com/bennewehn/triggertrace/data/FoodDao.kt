@@ -48,5 +48,8 @@ interface FoodDao {
     @Query("SELECT * FROM food WHERE name LIKE '%' || :query || '%'")
     fun searchItems(query: String): PagingSource<Int, Food>
 
+    @Query("SELECT * FROM food WHERE id = :foodId")
+    suspend fun getFoodById(foodId: Long): Food
+
 
 }

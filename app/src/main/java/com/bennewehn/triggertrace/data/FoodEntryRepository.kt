@@ -1,5 +1,7 @@
 package com.bennewehn.triggertrace.data
 
+import java.util.Date
+
 interface FoodEntryRepository {
     suspend fun insertFoodEntry(foodEntry: FoodEntry)
 
@@ -8,4 +10,6 @@ interface FoodEntryRepository {
     suspend fun foodEntryCount(id: Long): Long
 
     suspend fun deleteAllByFoodId(foodId: Long)
+
+    suspend fun getFoodEntriesForDay(day: Date): List<FoodEntry>
 }

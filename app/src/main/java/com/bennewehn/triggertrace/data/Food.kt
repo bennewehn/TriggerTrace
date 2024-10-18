@@ -15,8 +15,8 @@ import kotlinx.serialization.Serializable
     indices = [Index(value = ["name"], unique = true)])
 data class Food(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name="name") val name: String,
-)
+    @ColumnInfo(name="name") override val name: String,
+) : IName
 
 data class FoodWithInclusions(
     @Embedded val food: Food,

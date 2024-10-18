@@ -125,8 +125,13 @@ fun AppNav(
                 onBack = { navController.navigateUp() },
                 symptom = screen.symptom,
                 onValueSelected = { value: Boolean ->
-                    navController.navigate(Screen.SaveSymptomEntryScreen(screen.symptom, value = if (value) 0 else 1)){
-                        launchSingleTop = true
+                    if(value){
+                        navController.navigate(Screen.SaveSymptomEntryScreen(screen.symptom, value = 1)){
+                            launchSingleTop = true
+                        }
+                    }
+                    else{
+                        navController.navigateUp()
                     }
                 }
             )

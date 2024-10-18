@@ -22,6 +22,10 @@ class DefaultFoodRepository(private val foodDao: FoodDao) : FoodRepository {
         foodDao.deleteInclusions(foodId)
     }
 
+    override suspend fun getFoodById(foodId: Long): Food {
+        return foodDao.getFoodById(foodId)
+    }
+
     override suspend fun insertFoodInclusion(foodInclusion: FoodInclusion) {
         foodDao.insertFoodInclusion(foodInclusion)
     }

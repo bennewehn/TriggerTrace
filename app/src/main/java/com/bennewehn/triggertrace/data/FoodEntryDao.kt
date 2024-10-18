@@ -17,4 +17,7 @@ interface FoodEntryDao {
 
     @Query("DELETE FROM food_entries WHERE foodId = :foodId")
     suspend fun deleteAllByFoodId(foodId: Long)
+
+    @Query("SELECT * FROM food_entries WHERE timestamp BETWEEN :startOfDay AND :endOfDay")
+    suspend fun getFoodEntriesForDay(startOfDay: Long, endOfDay: Long): List<FoodEntry>
 }

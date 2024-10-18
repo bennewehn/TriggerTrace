@@ -17,6 +17,6 @@ enum class Scale{
 )
 data class Symptom(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name="name") val name: String,
+    @ColumnInfo(name="name") override val name: String,
     @ColumnInfo(name="scale") val scale: Scale,
-)
+) : IName

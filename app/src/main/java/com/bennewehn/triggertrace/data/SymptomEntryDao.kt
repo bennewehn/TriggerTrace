@@ -14,4 +14,7 @@ interface SymptomEntryDao {
 
     @Query("DELETE FROM symptom_entries WHERE symptomId = :symptomId")
     suspend fun deleteAllBySymptomId(symptomId: Long)
+
+    @Query("SELECT * FROM symptom_entries WHERE timestamp BETWEEN :startOfDay AND :endOfDay")
+    suspend fun getSymptomEntriesForDay(startOfDay: Long, endOfDay: Long): List<SymptomEntry>
 }

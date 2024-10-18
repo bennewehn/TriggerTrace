@@ -11,4 +11,6 @@ interface SymptomRepository {
     suspend fun deleteSymptom(symptom: Symptom)
 
     suspend fun updateSymptom(symptom: Symptom)
+
+    suspend fun getSymptomById(symptomId: Long) : Symptom
 }

@@ -1,5 +1,8 @@
 package com.bennewehn.triggertrace.data
 
+import com.bennewehn.triggertrace.utils.DateUtils
+import java.util.Date
+
 class DefaultFoodEntryRepository(private val foodEntryDao: FoodEntryDao) : FoodEntryRepository {
 
     override suspend fun insertFoodEntry(foodEntry: FoodEntry) {
@@ -16,6 +19,10 @@ class DefaultFoodEntryRepository(private val foodEntryDao: FoodEntryDao) : FoodE
 
     override suspend fun deleteAllByFoodId(foodId: Long) {
         foodEntryDao.deleteAllByFoodId(foodId)
+    }
+
+    override suspend fun getFoodEntriesForDay(day: Date): List<FoodEntry> {
+        return foodEntryDao.getFoodEntriesForDay(DateUtils.getStartOfDay(day), DateUtils.getEndOfDay(day))
     }
 
 }

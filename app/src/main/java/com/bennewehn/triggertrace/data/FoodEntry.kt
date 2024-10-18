@@ -20,5 +20,5 @@ import java.util.Date
 data class FoodEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name="foodId") val foodId: Long,
-    @ColumnInfo(name="timestamp") val timestamp: Date = Date(),
-)
+    @ColumnInfo(name="timestamp") override val timestamp: Date = Date(),
+) : Entry

@@ -64,7 +64,7 @@ fun OneToTenRatingScreen(
                 contentAlignment = Alignment.Center
             ) {
                 val text = buildAnnotatedString {
-                    append(stringResource(id = R.string.did_symptom))
+                    append(stringResource(id = R.string.rate_symptom))
                     append(" \"")
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(symptom.name)

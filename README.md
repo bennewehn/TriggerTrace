@@ -7,7 +7,10 @@ Save the foods you have eaten and the symptoms you have experienced.
 
 Export the data as SQLite or CSV.
 
+<div style="display: flex;">
 <img src="./doc/AppHome.png" alt="Home Screen" width="300"/>
+<img src="./doc/Diary.png" alt="Home Screen" width="300"/>
+</div>
 
 <div style="display: flex;">
 <img src="./doc/AddFood.png" alt="Add Food" width="300"/>

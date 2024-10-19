@@ -23,4 +23,7 @@ interface SymptomDao {
 
     @Query("SELECT * from symptom where id = :symptomId")
     suspend fun getSymptomById(symptomId: Long) : Symptom
+
+    @Query("SELECT * FROM symptom")
+    suspend fun getAllSymptoms(): List<Symptom>
 }

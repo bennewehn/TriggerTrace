@@ -24,4 +24,7 @@ interface FoodEntryDao {
 
     @Query("SELECT * FROM food_entries WHERE timestamp BETWEEN :startOfDay AND :endOfDay")
     suspend fun getFoodEntriesForDay(startOfDay: Long, endOfDay: Long): List<FoodEntry>
+
+    @Query("SELECT * FROM food_entries")
+    suspend fun getAllEntries(): List<FoodEntry>
 }

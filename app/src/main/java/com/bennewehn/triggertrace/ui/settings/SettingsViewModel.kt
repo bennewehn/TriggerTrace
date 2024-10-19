@@ -4,7 +4,11 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bennewehn.triggertrace.data.FoodEntryRepository
+import com.bennewehn.triggertrace.data.FoodRepository
 import com.bennewehn.triggertrace.data.SettingsStore
+import com.bennewehn.triggertrace.data.SymptomEntryRepository
+import com.bennewehn.triggertrace.data.SymptomRepository
 import com.bennewehn.triggertrace.data.TriggerTraceDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,6 +30,10 @@ data class SettingsUIState(
 class SettingsViewModel @Inject constructor(
     private val settingsStore: SettingsStore,
     private val db: TriggerTraceDatabase,
+    private val foodRepository: FoodRepository,
+    private val foodEntryRepository: FoodEntryRepository,
+    private val symptomsRepository: SymptomRepository,
+    private val symptomEntryRepository: SymptomEntryRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -68,6 +76,17 @@ class SettingsViewModel @Inject constructor(
     fun exportDatabase(uri: Uri){
         viewModelScope.launch {
             db.backupDatabase(context, uri)
+        }
+    }
+
+    fun exportCsvFilesToDirectory(directoryUri: Uri) {
+        viewModelScope.launch {
+            val contentResolver = context.contentResolver
+            foodRepository.exportFoodsToDirectory(directoryUri, contentResolver)
+            foodRepository.exportFoodInclusionsToDirectory(directoryUri, contentResolver)
+            foodEntryRepository.exportFoodEntriesToDirectory(directoryUri, contentResolver)
+            symptomsRepository.exportSymptomsToDirectory(directoryUri, contentResolver)
+            symptomEntryRepository.exportSymptomEntriesToDirectory(directoryUri, contentResolver)
         }
     }
 

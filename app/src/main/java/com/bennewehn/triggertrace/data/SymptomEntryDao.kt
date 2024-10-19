@@ -21,4 +21,7 @@ interface SymptomEntryDao {
 
     @Query("SELECT * FROM symptom_entries WHERE timestamp BETWEEN :startOfDay AND :endOfDay")
     suspend fun getSymptomEntriesForDay(startOfDay: Long, endOfDay: Long): List<SymptomEntry>
+
+    @Query("SELECT * FROM symptom_entries")
+    suspend fun getAllSymptomEntries(): List<SymptomEntry>
 }

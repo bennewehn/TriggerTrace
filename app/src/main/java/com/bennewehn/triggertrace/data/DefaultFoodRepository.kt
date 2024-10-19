@@ -1,8 +1,11 @@
 package com.bennewehn.triggertrace.data
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.bennewehn.triggertrace.utils.FileUtils.createCSVFileInDirectory
 import kotlinx.coroutines.flow.Flow
 
 class DefaultFoodRepository(private val foodDao: FoodDao) : FoodRepository {
@@ -24,6 +27,42 @@ class DefaultFoodRepository(private val foodDao: FoodDao) : FoodRepository {
 
     override suspend fun getFoodById(foodId: Long): Food {
         return foodDao.getFoodById(foodId)
+    }
+
+    override suspend fun exportFoodsToDirectory(
+        directoryUri: Uri,
+        contentResolver: ContentResolver
+    ) {
+        val fileUri = createCSVFileInDirectory(contentResolver, directoryUri, "food.csv")
+        fileUri?.let { uri ->
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.writer().use { writer ->
+                    writer.append("id, name\n") // CSV Header
+                    val food = foodDao.getAllFoods()
+                        food.forEach { foodEntry ->
+                            writer.append("${foodEntry.id}, ${foodEntry.name}\n")
+                        }
+                }
+            }
+        }
+    }
+
+    override suspend fun exportFoodInclusionsToDirectory(
+        directoryUri: Uri,
+        contentResolver: ContentResolver
+    ) {
+        val fileUri = createCSVFileInDirectory(contentResolver, directoryUri, "food_inclusions.csv")
+        fileUri?.let { uri ->
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.writer().use { writer ->
+                    writer.append("foodId, includedFoodId\n") // CSV Header
+                    val food = foodDao.getAllFoodInclusions()
+                    food.forEach { foodEntry ->
+                        writer.append("${foodEntry.foodId}, ${foodEntry.includedFoodId}\n")
+                    }
+                }
+            }
+        }
     }
 
     override suspend fun insertFoodInclusion(foodInclusion: FoodInclusion) {

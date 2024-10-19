@@ -18,7 +18,7 @@
     <string name="name_cannot_be_empty_message">Name cannot be empty.</string>
     <string name="name_already_used_message">Name is already used.</string>
     <string name="error_message_adding_food">Error adding food.</string>
-    <string name="export_as_csv">Export as CSV</string>
+    <string name="export_as_csvs">Export as CSVs</string>
     <string name="deleted">deleted</string>
     <string name="UNDO">UNDO</string>
     <string name="nothing_selected">Nothing selected</string>

@@ -1,5 +1,7 @@
 package com.bennewehn.triggertrace.data
 
+import android.content.ContentResolver
+import android.net.Uri
 import java.util.Date
 
 interface FoodEntryRepository {
@@ -14,4 +16,6 @@ interface FoodEntryRepository {
     suspend fun getFoodEntriesForDay(day: Date): List<FoodEntry>
 
     suspend fun deleteFoodEntry(foodEntry: FoodEntry)
+
+    suspend fun exportFoodEntriesToDirectory(directoryUri: Uri, contentResolver: ContentResolver)
 }

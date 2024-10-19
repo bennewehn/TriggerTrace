@@ -43,6 +43,13 @@ fun SettingsScreen(
         }
     )
 
+    val selectDirectoryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+        onResult = { uri: Uri? ->
+            uri?.let { viewModel.exportCsvFilesToDirectory(it) }
+        }
+    )
+
     SettingsScreenContent(
         modifier = modifier,
         onBack = onBack,
@@ -50,7 +57,8 @@ fun SettingsScreen(
         uiState = uiState,
         updateLogPollen = viewModel::updateLogPollen,
         updateLogTemperature = viewModel::updateLogTemperature,
-        exportDb = { createFileLauncher.launch("database.db") }
+        exportDb = { createFileLauncher.launch("database.db") },
+        onCsvClicked = { selectDirectoryLauncher.launch(null) }
     )
 }
 
@@ -59,6 +67,7 @@ private fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onInfoClicked: () -> Unit,
+    onCsvClicked: () -> Unit,
     uiState: SettingsUIState,
     updateLogPollen: (Boolean) -> Unit,
     updateLogTemperature: (Boolean) -> Unit,
@@ -85,7 +94,8 @@ private fun SettingsScreenContent(
             )
             SettingsClickable(
                 icon = ImageVector.vectorResource(id = R.drawable.csv_icon),
-                name = R.string.export_as_csv,
+                name = R.string.export_as_csvs,
+                onClick = onCsvClicked
             )
             SettingsSwitch(
                 icon = Icons.Rounded.Grass,
@@ -119,7 +129,8 @@ private fun SettingsScreenPreview() {
             uiState = SettingsUIState(),
             updateLogPollen = {},
             updateLogTemperature = {},
-            exportDb = {}
+            exportDb = {},
+            onCsvClicked = {}
         )
     }
 }

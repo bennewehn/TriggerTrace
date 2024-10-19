@@ -1,5 +1,7 @@
 package com.bennewehn.triggertrace.data
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 
@@ -25,4 +27,8 @@ interface FoodRepository {
     suspend fun deleteInclusions(foodId: Long)
 
     suspend fun getFoodById(foodId: Long): Food
+
+    suspend fun exportFoodsToDirectory(directoryUri: Uri, contentResolver: ContentResolver)
+
+    suspend fun exportFoodInclusionsToDirectory(directoryUri: Uri, contentResolver: ContentResolver)
 }

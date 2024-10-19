@@ -27,7 +27,7 @@ class SettingsStore @Inject constructor(private val context: Context){
     }
 
     val logPollen: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.LOG_POLLEN] ?: false
+        preferences[PreferencesKeys.LOG_POLLEN] == true
     }
 
     suspend fun setLogTemperature(value: Boolean) {
@@ -37,7 +37,7 @@ class SettingsStore @Inject constructor(private val context: Context){
     }
 
     val logTemperature: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.LOG_TEMPERATURE] ?: false
+        preferences[PreferencesKeys.LOG_TEMPERATURE] == true
     }
 
 }
